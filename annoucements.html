@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop></audio>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop hidden></audio>
+
+  <title>Welcome to Game Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --purple-900: #1a0033;
+      --purple-800: #2d0052;
+      --purple-700: #4a0080;
+      --purple-600: #6b21a8;
+      --purple-500: #8b5cf6;
+      --purple-400: #a78bfa;
+      --purple-300: #c4b5fd;
+      --purple-200: #e9d5ff;
+      --black: #000000;
+      --white: #ffffff;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .background-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+      z-index: 0;
+    }
+    .stars {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(2px 2px at 60px 70px, white, transparent),
+        radial-gradient(1px 1px at 50px 50px, white, transparent),
+        radial-gradient(1px 1px at 130px 80px, white, transparent),
+        radial-gradient(2px 2px at 90px 150px, white, transparent);
+      background-repeat: repeat;
+      background-size: 200px 200px;
+      opacity: 0.4;
+      animation: starsMove 100s linear infinite;
+      z-index: 1;
+    }
+    @keyframes starsMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(-200px); }
+    }
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.1;
+      z-index: 2;
+      animation: float 20s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--purple-600), transparent);
+      top: -100px;
+      left: -100px;
+      animation-duration: 25s;
+    }
+    .orb-2 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, var(--purple-700), transparent);
+      bottom: -100px;
+      right: -100px;
+      animation-duration: 30s;
+      animation-delay: -10s;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(50px, -50px) scale(1.1); }
+      66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 1s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .header { text-align: center; padding: 3rem 0 2rem; }
+    .time-display {
+      display: inline-block;
+      font-size: 0.875rem;
+      color: var(--purple-300);
+      background: rgba(139, 92, 246, 0.1);
+      padding: 0.5rem 1.25rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      backdrop-filter: blur(10px);
+      margin-bottom: 2rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    .content-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.5rem;
+      padding: 3rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                  0 0 100px rgba(139, 92, 246, 0.1),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+    }
+    .page-subtitle {
+      font-size: 1.125rem;
+      color: var(--purple-200);
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+      margin: 2.5rem 0;
+      opacity: 0.3;
+    }
+    .announcement-section { text-align: center; }
+    .profile-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      display: block;
+      padding: 1rem;
+    }
+    .author-name {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 2rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+      color: var(--white);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+    .star-icon {
+      display: inline-block;
+      font-size: 1.25rem;
+      animation: rotateStar 3s linear infinite;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+    @keyframes rotateStar {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Shield icon styles */
+    .shield-icon {
+      display: inline-block;
+      position: relative;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    .shield-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+    /* Sequential reveal animation for shield parts */
+    .badge-outline {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: drawOutline 2s ease-in-out infinite;
+    }
+    .badge-fill {
+      opacity: 0;
+      animation: fadeInBadge 2s ease-in-out infinite;
+      animation-delay: 0.5s;
+    }
+    .badge-star {
+      opacity: 0;
+      transform: scale(0);
+      transform-origin: center;
+      animation: popInStar 2s ease-in-out infinite;
+      animation-delay: 1s;
+    }
+    @keyframes drawOutline {
+      0% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+      }
+      25% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+      75% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+      100% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+      }
+    }
+    @keyframes fadeInBadge {
+      0% {
+        opacity: 0;
+      }
+      25% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      75% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+    @keyframes popInStar {
+      0% {
+        opacity: 0;
+        transform: scale(0);
+      }
+      50% {
+        opacity: 0;
+        transform: scale(0);
+      }
+      62.5% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+      75% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0);
+      }
+    }
+    
+    .message-box {
+      background: rgba(139, 92, 246, 0.05);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-top: 2rem;
+      text-align: left;
+    }
+    .message-box p {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--purple-100);
+      margin: 0;
+    }
+    .cta-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(139, 92, 246, 0.2);
+      text-align: center;
+    }
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+      color: var(--white);
+      padding: 1rem 2rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
+    }
+    @media (max-width: 768px) {
+      .page-title { font-size: 2rem; }
+      .author-name { font-size: 1.5rem; }
+      .message-box { padding: 1.5rem; }
+    }
+
+    @keyframes moveGradient {
+        0% {
+            background-position: 100% 50%; 
+        }
+        100% {
+            background-position: 100% 0%; 
+        }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-gradient"></div>
+  <div class="stars"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="container">
+    <header class="header">
+      <div class="time-display" id="currentTime"></div>
+    </header>
+
+    <main class="content-card">
+      <h1 class="page-title">Announcements</h1>
+      <br>
+      <p class="page-subtitle">Updates, Concerns, and Important Information</p>
+
+      <div class="divider"></div>
+
+      <section class="announcement-section">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Anonymous_emblem.svg/1200px-Anonymous_emblem.svg.png" alt="Anonymous Logo" class="profile-image">
+        <div class="author-name">
+          <span class="golden-name">anon</span>
+          <span class="badge"><span class="star-icon">★</span><span>Administrator</span></span>
+        </div>
+        <div class="message-box">
+          <p>10/31/25: Welcome to Game Vault! I'm excited to share this journey with all of you. This project has been carefully designed with your safety and enjoyment in mind. Our platform is built on a foundation of security, transparency, and community trust. I'm committed to maintaining regular updates and keeping this space risk-free for everyone involved. Together, we'll build something truly exceptional.</p>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="announcement-section">
+        <img src="https://cdn.jsdelivr.net/gh/shayderrr/chatthingy@main/22f3d9e14886a00f9a6584ad5d51a400.jpg" alt="Employee Avatar" class="profile-image">
+        <div class="author-name">
+          <span class = "blue-name">?</span>
+          <span class="badge">
+            <span class="shield-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shield/Badge outline (draws first) -->
+                <path class="badge-outline" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
+                      stroke="#ffffff" stroke-width="1.5" fill="none"/>
+                
+                <!-- Shield fill (appears second) -->
+                <path class="badge-fill" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
+                      fill="#ffffff" opacity="0.3"/>
+                
+                <!-- Checkmark in center (pops in last) -->
+                <path class="badge-star" d="M9 12l2 2 4-4" 
+                      stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Co-Owner</span>
+          </span>
+        </div>
+        <div class="message-box">
+          <p>11/12/25: hi</p>
+        </div>
+      </section>
+      
+            <div class="divider"></div>
+
+      <section class="announcement-section">
+        <img src="https://lh3.googleusercontent.com/j1iy9wDfbFtuFmkyKHwX-WSC7l5G2IuWagraEHyfhNVgGWjF2kFcSt14en09ks2YtxMaR5B2te4d4Gifj0lDQWR5HxXo9GfP6FxDdg=w600" alt="Post the best cat memes you got in the comments..... Please.... : r/cats" class="profile-image"/>
+        <div class="author-name">
+          <span class = "blue-name">bredcat</span>
+          <span class="badge">
+            <span class="shield-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shield/Badge outline (draws first) -->
+                <path class="badge-outline" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
+                      stroke="#ffffff" stroke-width="1.5" fill="none"/>
+                
+                <!-- Shield fill (appears second) -->
+                <path class="badge-fill" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
+                      fill="#ffffff" opacity="0.3"/>
+                
+                <!-- Checkmark in center (pops in last) -->
+                <path class="badge-star" d="M9 12l2 2 4-4" 
+                      stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Employee</span>
+          </span>
+        </div>
+        <div class="message-box">
+          <p>11/14/25: im a new employee, I do help with some of the stuff for coding and I do some of the ideas, yeah i think thats about it bye bye</p>
+        </div>
+      </section>
+
+      <div class="cta-section">
+        <a href="https://sites.google.com/student.allenisd.org/the-game-vault/home-page/guidelines" class="cta-button" target="_blank">
+          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>Guidelines</span>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent = now.toUTCString();
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html>
