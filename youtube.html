@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Unblocker - The Game Vault</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-900: #1a0033;
+            --purple-800: #2d0052;
+            --purple-700: #4a0080;
+            --purple-600: #6b21a8;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-300: #c4b5fd;
+            --purple-200: #e9d5ff;
+            --purple-100: #f3e8ff;
+            --black: #000000;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 150px, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.4;
+            animation: starsMove 100s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes starsMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        /* Purple glow orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            z-index: 2;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--purple-600), transparent);
+            top: -100px;
+            left: -100px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--purple-700), transparent);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .time-display {
+            display: inline-block;
+            font-size: 0.875rem;
+            color: var(--purple-300);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Page title */
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .page-title .title-text {
+            background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.25rem;
+            color: var(--purple-200);
+            margin-bottom: 3rem;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        /* Status badge */
+        .status-badge {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.2));
+            color: #6ee7b7;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            display: flex;
+            justify-content: center;
+            font-size: 0.875rem;
+            max-width: 250px;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            margin: 0 auto 2rem;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+            margin: 2.5rem 0;
+            opacity: 0.3;
+        }
+
+        /* Content card */
+        .content-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* URL Converter Section */
+        .url-converter {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .url-input {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            color: var(--white);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--purple-500);
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .url-input::placeholder {
+            color: rgba(199, 210, 254, 0.5);
+        }
+
+        .convert-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            color: var(--white);
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .convert-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Fullscreen button */
+        .fullscreen-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.3));
+            color: var(--purple-200);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .fullscreen-btn.show {
+            display: flex;
+        }
+
+        .fullscreen-btn:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.4));
+            border-color: rgba(139, 92, 246, 0.6);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        /* Video Player */
+        .video-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 450px;
+        }
+
+        .video-container embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .placeholder-text {
+            color: var(--purple-300);
+            font-size: 1.125rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Tutorial text */
+        .tutorial-text {
+            font-size: 1.0625rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1.5rem;
+        }
+
+        .tutorial-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .tutorial-list li {
+            font-size: 1.0625rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .tutorial-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--purple-400);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        /* Feature badges */
+        .features {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+
+        .feature-badge {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--purple-200);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-icon {
+            color: var(--purple-400);
+        }
+
+        /* Info box */
+        .info-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-left: 4px solid var(--purple-500);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-box-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--purple-200);
+        }
+
+        /* Success message */
+        .success-message {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .success-message.show {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .url-converter {
+                padding: 1.5rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .url-input {
+                min-width: 100%;
+            }
+
+            .video-container {
+                min-height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .content-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="background-gradient"></div>
+    <div class="stars"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <header class="header">
+            <div class="time-display" id="currentTime"></div>
+        </header>
+
+        <main>
+            <h1 class="page-title"><span class="title-text">YouTube Unblocker</span> 📺</h1>
+            <p class="page-subtitle">
+                Stream YouTube videos without restrictions, ads, or interruptions
+            </p>
+
+            <div class="divider"></div>
+
+            <!-- Main Content -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">🎬</span>
+                    Video Player
+                </h2>
+
+                <div class="features">
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        No Advertisements
+                    </div>
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        True Fullscreen Mode
+                    </div>
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        HD Quality
+                    </div>
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        No Sign-in Required
+                    </div>
+                </div>
+
+                <div class="url-converter">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            class="url-input" 
+                            id="urlInput" 
+                            placeholder="Paste YouTube URL here (e.g., https://www.youtube.com/watch?v=...)"
+                        >
+                        <button class="convert-btn" onclick="convertAndPlay()">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Play Video
+                        </button>
+                    </div>
+                    <div class="success-message" id="successMessage">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        URL converted successfully! Video is loading...
+                    </div>
+                </div>
+
+                <div class="video-container" id="videoContainer">
+                    <div class="placeholder-text">
+                        Enter a YouTube URL above to start watching
+                    </div>
+                </div>
+                
+                <div class="video-controls">
+                    <button class="fullscreen-btn" id="fullscreenBtn" onclick="openFullscreen()">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5h-4m4 0v-4m0 4l-5-5"></path>
+                        </svg>
+                        Open in Fullscreen
+                    </button>
+                </div>
+            </div>
+
+            <!-- How it Works -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">1</span>
+                    How It Works
+                </h2>
+
+                <p class="tutorial-text">
+                    <strong>Yout-ube.com</strong> is a powerful alternative platform that allows you to watch YouTube videos 
+                    without ads and with enhanced fullscreen capabilities. The service automatically converts standard 
+                    YouTube URLs to bypass restrictions.
+                </p>
+
+                <ul class="tutorial-list">
+                    <li>
+                        Find any YouTube video you want to watch
+                    </li>
+                    <li>
+                        Copy the video's URL from your browser's address bar
+                    </li>
+                    <li>
+                        Paste the URL into the input field above
+                    </li>
+                    <li>
+                        Click "Play Video" - the URL will automatically convert from youtube.com to yout-ube.com
+                    </li>
+                    <li>
+                        Click "Open in Fullscreen" button to watch in a distraction-free fullscreen window
+                    </li>
+                    <li>
+                        Enjoy your video without ads or interruptions!
+                    </li>
+                </ul>
+
+                <div class="info-box">
+                    <div class="info-box-title">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Pro Tip</span>
+                    </div>
+                    <p class="info-text">
+                        The converter automatically handles the URL transformation. For example:<br>
+                        <strong>Before:</strong> https://www.youtube.com/watch?v=C26v417a_rs<br>
+                        <strong>After:</strong> https://www.yout-ube.com/watch?v=C26v417a_rs
+                    </p>
+                </div>
+            </div>
+
+            <!-- Additional Features -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">✨</span>
+                    Features & Benefits
+                </h2>
+
+                <p class="tutorial-text">
+                    This unblocker provides a seamless viewing experience with multiple advantages over standard YouTube:
+                </p>
+
+                <ul class="tutorial-list">
+                    <li>
+                        <strong>Ad-Free Experience:</strong> Watch videos without any commercial interruptions
+                    </li>
+                    <li>
+                        <strong>True Fullscreen Mode:</strong> Opens in a clean window with nothing but the video - no browser bars, no distractions
+                    </li>
+                    <li>
+                        <strong>No Account Required:</strong> Access content without signing in
+                    </li>
+                    <li>
+                        <strong>Simple URL Conversion:</strong> Automatic URL transformation for easy access
+                    </li>
+                    <li>
+                        <strong>Fast Loading:</strong> Optimized streaming for quick video playback
+                    </li>
+                </ul>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Troubleshooting -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">💡</span>
+                    Troubleshooting
+                </h2>
+                <p class="tutorial-text">
+                    If the video doesn't load properly, try these steps:
+                </p>
+                <ul class="tutorial-list">
+                    <li>Ensure you're copying the complete YouTube URL</li>
+                    <li>Check your internet connection</li>
+                    <li>Try refreshing the page and re-entering the URL</li>
+                    <li>If fullscreen doesn't open, allow pop-ups for this site in your browser settings</li>
+                    <li>Some videos may have regional restrictions that cannot be bypassed</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentVideoId = null; // Store the current video ID for fullscreen
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toUTCString();
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // URL Converter Function
+        function convertAndPlay() {
+            const input = document.getElementById('urlInput');
+            const videoContainer = document.getElementById('videoContainer');
+            const successMessage = document.getElementById('successMessage');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            
+            let url = input.value.trim();
+            
+            if (!url) {
+                alert('Please enter a YouTube URL');
+                return;
+            }
+
+            // Convert YouTube URL to Yout-ube URL
+            let convertedUrl = url;
+            
+            // Handle different YouTube URL formats
+            if (url.includes('youtube.com')) {
+                convertedUrl = url.replace('youtube.com', 'yout-ube.com');
+            } else if (url.includes('youtu.be')) {
+                // Convert shortened URLs
+                const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+                if (videoId) {
+                    convertedUrl = `https://www.yout-ube.com/watch?v=${videoId}`;
+                }
+            }
+
+            // Extract video ID for embed
+            let videoId = '';
+            if (convertedUrl.includes('watch?v=')) {
+                videoId = convertedUrl.split('watch?v=')[1]?.split('&')[0];
+            }
+
+            if (videoId) {
+                // Store video ID for fullscreen functionality
+                currentVideoId = videoId;
+                
+                // Show success message
+                successMessage.classList.add('show');
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 3000);
+
+                // Create embed element
+                const embedHtml = `
+                    <embed 
+                        src="https://www.yout-ube.com/embed/${videoId}" 
+                        type="text/html" 
+                        width="100%" 
+                        height="100%"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                `;
+                
+                videoContainer.innerHTML = embedHtml;
+                
+                // Show fullscreen button
+                fullscreenBtn.classList.add('show');
+                
+                // Update input with converted URL
+                input.value = convertedUrl;
+            } else {
+                alert('Invalid YouTube URL. Please check and try again.');
+            }
+        }
+
+        // Open in Fullscreen Function
+        function openFullscreen() {
+            if (!currentVideoId) {
+                alert('Please load a video first');
+                return;
+            }
+
+            // Create a new window with about:blank
+            const newWindow = window.open('about:blank', '_blank');
+            
+            if (newWindow) {
+                // Write minimal HTML with just the embed in fullscreen
+                const fullscreenHTML = `
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Dashboard</title>
+                        <link rel="icon" href="https://instructure-uploads.s3.amazonaws.com/account_30000000002042/attachments/80746393/favicon-16x16.png">
+                        <style>
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+                            body {
+                                background: #000;
+                                overflow: hidden;
+                                width: 100vw;
+                                height: 100vh;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            }
+                            embed {
+                                width: 100vw;
+                                height: 100vh;
+                                border: none;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <embed 
+                            src="https://www.yout-ube.com/embed/${currentVideoId}" 
+                            type="text/html" 
+                            width="100%" 
+                            height="100%"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                        />
+                    </body>
+                    </html>
+                `;
+                
+                newWindow.document.write(fullscreenHTML);
+                newWindow.document.close();
+            } else {
+                alert('Pop-up blocked! Please allow pop-ups for this site to use fullscreen mode.');
+            }
+        }
+
+        // Allow Enter key to trigger conversion
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertAndPlay();
+            }
+        });
+
+        // Auto-convert when pasting a YouTube URL
+        document.getElementById('urlInput').addEventListener('paste', function(e) {
+            setTimeout(() => {
+                const pastedText = e.target.value;
+                if (pastedText.includes('youtube.com') || pastedText.includes('youtu.be')) {
+                    // Auto-convert after a short delay to show the conversion
+                    setTimeout(() => {
+                        convertAndPlay();
+                    }, 500);
+                }
+            }, 10);
+        });
+    </script>
+</body>
+</html>
