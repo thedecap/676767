@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Security Tools | Digital Safety Overview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-900: #1a0033;
+            --purple-800: #2d0052;
+            --purple-700: #4a0080;
+            --purple-600: #6b21a8;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-300: #c4b5fd;
+            --purple-200: #e9d5ff;
+            --purple-100: #f3e8ff;
+            --black: #000000;
+            --white: #ffffff;
+            --gold: #fbbf24;
+            --risk-high: #ef4444;
+            --risk-medium: #eab308;
+            --risk-safe: #22c55e;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 150px, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.4;
+            animation: starsMove 100s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes starsMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        /* Purple glow orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            z-index: 2;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--purple-600), transparent);
+            top: -100px;
+            left: -100px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--purple-700), transparent);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--purple-300);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .shield-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        /* Page title */
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .page-title .title-text {
+            background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.125rem;
+            color: var(--purple-200);
+            margin-bottom: 3rem;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.8;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+            margin: 3rem 0;
+            opacity: 0.3;
+        }
+
+        /* Tools section */
+        .tools-section {
+            max-width: 900px;
+            margin: 0 auto 3rem;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .tool-icon-container {
+            width: 80px;
+            height: 80px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            color: var(--purple-400);
+        }
+
+        .tool-image-placeholder {
+            width: 280px;
+            height: 200px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--purple-300);
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .tool-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+
+        .tool-image-placeholder::before {
+            display: none;
+        }
+
+        .placeholder-icon {
+            width: 50px;
+            height: 50px;
+            color: var(--purple-400);
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-description {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-top: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .risk-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            letter-spacing: 0.025em;
+        }
+
+        .risk-high {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--risk-high);
+        }
+
+        .risk-medium {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            color: var(--risk-medium);
+        }
+
+        .risk-safe {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--risk-safe);
+        }
+
+        .risk-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .risk-high .risk-dot {
+            background: var(--risk-high);
+            box-shadow: 0 0 10px var(--risk-high);
+        }
+
+        .risk-medium .risk-dot {
+            background: var(--risk-medium);
+            box-shadow: 0 0 10px var(--risk-medium);
+        }
+
+        .risk-safe .risk-dot {
+            background: var(--risk-safe);
+            box-shadow: 0 0 10px var(--risk-safe);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        /* Info section */
+        .info-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 900px;
+            margin: 3rem auto;
+        }
+
+        .info-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-content {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+        }
+
+        .info-list {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .info-list li {
+            margin-bottom: 0.75rem;
+            color: var(--purple-200);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .tool-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .tool-image-placeholder {
+                width: 100%;
+                height: 200px;
+                margin-top: 0;
+            }
+
+            .tool-title {
+                font-size: 1.5rem;
+            }
+
+            .info-section {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .tool-card {
+                padding: 1.5rem;
+            }
+
+            .security-badge {
+                font-size: 0.75rem;
+                padding: 0.4rem 1rem;
+            }
+
+            .tool-image-placeholder {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="background-gradient"></div>
+    <div class="stars"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <header class="header">
+            <div class="security-badge">
+                <svg class="shield-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                <span>Digital Safety & Monitoring Overview</span>
+            </div>
+        </header>
+
+        <main>
+            <h1 class="page-title">
+                <span class="title-text">School Security Tools</span>
+            </h1>
+            <p class="page-subtitle">
+                Understanding the digital monitoring and content filtering systems used in educational environments. 
+                These tools help monitor us at all times while blocking websites real-time for a learning environment.
+            </p>
+
+            <div class="divider"></div>
+
+            <!-- Tools Section -->
+            <section class="tools-section">
+                <!-- GoGuardian -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-image-placeholder" style="background: white;">
+                            <img src="https://cdn.prod.website-files.com/60e615980cab093e6f2db3c3/623b649188f5a50d7920f040_67bfa5bca438d84d92651e7caf0f8d6ccda306bd.png" alt="GoGuardian" class="tool-image">
+                        </div>
+                        <div class="tool-info">
+                            <h2 class="tool-title">GoGuardian</h2>
+                            <p class="tool-description">
+                                Teachers can use GoGuardian to monitor students' internet use, both in-person and remotely, 
+                                ensuring engagement and access to approved sites. GoGuardian operates continuously (24/7), 
+                                providing comprehensive oversight of student digital activities to maintain academic focus 
+                                and prevent access to inappropriate content during both school hours and remote learning sessions.
+                            </p>
+                            <div class="risk-indicator risk-high">
+                                <span class="risk-dot"></span>
+                                <span>Risk Level: High</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ContentKeeper -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-image-placeholder" style="background: white;">
+                            <img src="https://strykesecurity.com/wp-content/uploads/2023/06/ContentKeeper_1080x1080.png" alt="ContentKeeper" class="tool-image">
+                        </div>
+                        <div class="tool-info">
+                            <h2 class="tool-title">ContentKeeper Blocker</h2>
+                            <p class="tool-description">
+                                ContentKeeper Blocker filters or blocks inappropriate content, used in schools and workplaces 
+                                to enhance productivity and safety. This comprehensive web filtering solution automatically 
+                                categorizes and restricts access to non-educational websites, social media platforms, and 
+                                potentially harmful content. The system typically deactivates after school hours, allowing 
+                                more flexible internet access during non-instructional time.
+                            </p>
+                            <div class="risk-indicator risk-medium">
+                                <span class="risk-dot"></span>
+                                <span>Risk Level: Medium</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gopher Buddy -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-image-placeholder" style="background: white;">
+                            <img src="https://lh3.googleusercontent.com/-tlmOK74SnZo/Yrrnr8utyiI/AAAAAAAAe-0/TE1ld07LE80arx1Ox-HCHz1-kr9dXugzwCNcBGAsYHQ/s400/128x128_color.png" alt="Gopher Buddy" class="tool-image">
+                        </div>
+                        <div class="tool-info">
+                            <h2 class="tool-title">Gopher Buddy</h2>
+                            <p class="tool-description">
+                                Gopher Buddy helps school IT administrators manage devices by tracking essential device data 
+                                including Google username, device ID, IP address, timestamp, and session length. This lightweight 
+                                monitoring tool operates primarily in the background with minimal user interaction, collecting 
+                                analytics and device information to ensure proper device management and security compliance. 
+                                The system almost never interacts directly with users, maintaining a non-intrusive presence.
+                            </p>
+                            <div class="risk-indicator risk-safe">
+                                <span class="risk-dot"></span>
+                                <span>Risk Level: Safe</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Information Section -->
+            <section class="info-section">
+                <div class="info-title">
+                    <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Understanding Risk Levels</span>
+                </div>
+                <div class="info-content">
+                    <p>Risk levels are categorized based on the extent of monitoring and data collection:</p>
+                    <ul class="info-list">
+                        <li><strong style="color: #ef4444;">High Risk:</strong> Continuous, comprehensive monitoring with real-time oversight capabilities and extensive data collection</li>
+                        <li><strong style="color: #eab308;">Medium Risk:</strong> Content filtering and blocking with scheduled operation times, moderate data collection</li>
+                        <li><strong style="color: #22c55e;">Safe:</strong> Background device management with minimal user interaction and limited data scope</li>
+                    </ul>
+                    <p>
+                        These tools are implemented to comply with educational technology policies and student safety 
+                        regulations. Understanding their capabilities helps students and educators navigate digital 
+                        learning environments more effectively while maintaining awareness of privacy considerations.
+                    </p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
