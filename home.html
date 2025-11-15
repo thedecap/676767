@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop></audio>
+    <title>The Game Vault | 🕹️👾</title>
+<audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop hidden></audio>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-900: #1a0033;
+            --purple-800: #2d0052;
+            --purple-700: #4a0080;
+            --purple-600: #6b21a8;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-300: #c4b5fd;
+            --purple-200: #e9d5ff;
+            --purple-100: #f3e8ff;
+            --black: #000000;
+            --white: #ffffff;
+            --gold: #fbbf24;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+s
+        /* Animated background */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 150px, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.4;
+            animation: starsMove 100s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes starsMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        /* Purple glow orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            z-index: 2;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--purple-600), transparent);
+            top: -100px;
+            left: -100px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--purple-700), transparent);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .time-display {
+            display: inline-block;
+            font-size: 0.875rem;
+            color: var(--purple-300);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Page title */
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .page-title .title-text {
+            background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.125rem;
+            color: var(--purple-200);
+            margin-bottom: 3rem;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.8;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-subtitle a {
+         text-decoration: none;
+         color: var(--purple-200);
+         }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+            margin: 3rem 0;
+            opacity: 0.3;
+        }
+
+        /* Games section */
+        .games-section {
+            max-width: 900px;
+            margin: 0 auto 3rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
+        }
+
+        .game-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-image-placeholder {
+            width: 200px;
+            height: 150px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--purple-300);
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .game-image {
+            width: 200px;
+            height: 150px;
+            border-radius: 1rem;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .game-info {
+            flex: 1;
+        }
+
+        .game-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+        }
+
+        .game-rating {
+            font-size: 1.25rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .game-description {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1rem;
+        }
+
+        .game-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .game-tag {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple-200);
+            padding: 0.4rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Footer section */
+        .footer-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            max-width: 900px;
+            margin: 3rem auto;
+            text-align: center;
+        }
+
+        .footer-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .contributor {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .star-icon {
+            display: inline-block;
+            font-size: 1.25rem;
+            animation: rotateStar 3s linear infinite;
+            filter: drop-shadow(0 0 8px #fbbf24);
+            color: #fbbf24;
+        }
+
+        @keyframes rotateStar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .dizzy-icon {
+            display: inline-block;
+            position: relative;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-left: 0.25rem;
+        }
+
+        .dizzy-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Sequential reveal animation for shield parts */
+        .badge-outline {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawOutline 2s ease-in-out infinite;
+        }
+
+        .badge-fill {
+            opacity: 0;
+            animation: fadeInBadge 2s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+
+        .badge-star {
+            opacity: 0;
+            transform: scale(0);
+            transform-origin: center;
+            animation: popInStar 2s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+
+        @keyframes drawOutline {
+            0% {
+                stroke-dashoffset: 100;
+                opacity: 0;
+            }
+            25% {
+                stroke-dashoffset: 0;
+                opacity: 1;
+            }
+            75% {
+                stroke-dashoffset: 0;
+                opacity: 1;
+            }
+            100% {
+                stroke-dashoffset: 100;
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeInBadge {
+            0% {
+                opacity: 0;
+            }
+            25% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            75% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes popInStar {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            62.5% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            75% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+
+        .footer-message {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .game-header {
+                flex-direction: column;
+            }
+
+            .game-image-placeholder,
+            .game-image {
+                width: 100%;
+                height: 200px;
+            }
+
+            .game-title {
+                font-size: 1.5rem;
+            }
+
+            .footer-title {
+                font-size: 1.25rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .game-card {
+                padding: 1.5rem;
+            }
+
+            .footer-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+            }
+
+            .footer-link {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="background-gradient"></div>
+    <div class="stars"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <header class="header">
+            <div class="time-display" id="currentTime"></div>
+        </header>
+
+        <main>
+            <h1 class="page-title"><span class="title-text">The Game Vault</span> | 🕹️👾</h1>
+  <p class="page-subtitle">
+  Discover and play hundreds of fun, free online games — all in one place. 
+  Over 5,000 games are here! Join us on this exciting adventure. Games aren't for you? No need to fret, as this doesn't just have games, but exciting tools like Chat Room, LSB Stegography, and way more! Join us on this exciting adventure as we traverse school in a fun way.  
+  <a href="https://forms.gle/g6GjUZYHRLpRway36" target="_blank">Want to suggest games? Click here!</a>
+</p>
+
+            <div class="footer-links">
+                <a href="https://sites.google.com/student.allenisd.org/the-game-vault/games/html-games" class="footer-link" target="_blank">
+                    <span>HTML Games</span>
+                </a>
+                <a href="https://sites.google.com/student.allenisd.org/the-game-vault/games/more-games" class="footer-link">
+                    <span>More Games</span>
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Games Section -->
+            <section class="games-section">
+                <!-- Game 1: Wrestle Bros -->
+                <div class="game-card">
+                    <div class="game-header">
+                        <div class="game-image-placeholder">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB7dT1-RPks-APl8EqwfGw_hW7G0ayB24QrQ&s" alt="Wrestle bros" width="210px" height="150px" style="border-radius: 4px;">
+                        </div>
+                        <div class="game-info">
+                            <h2 class="game-title">Wrestle Bros</h2>
+                            <div class="game-rating">⭐⭐⭐⭐☆</div>
+                        </div>
+                    </div>
+                    <p class="game-description">
+                        Fun, fast-paced browser wrestling game where you battle as cartoonish "bros" 
+                        in over-the-top matches. You can play solo, locally with a friend, or online 
+                        against others. The controls are simple, the action is chaotic and funny, and 
+                        the goal is to slam, flip, and out-wrestle your opponents to become the ultimate champ.
+                    </p>
+                    <div class="game-tags">
+                        <span class="game-tag">HTML Games</span>
+                    </div>
+                </div>
+
+                <!-- Game 2: 1v1.LOL -->
+                <div class="game-card">
+                    <div class="game-header">
+                        <div class="game-image-placeholder">
+                          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5e6EOAkvWDDrhDWLROtmsFOJwMjhAYYVF4g&s" alt="Wrestle bros" width="210px" height="150px" style="border-radius: 4px;">
+                        </div>
+                        <div class="game-info">
+                            <h2 class="game-title">1v1.LOL</h2>
+                            <div class="game-rating">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="game-description">
+                        An online third-person shooter and building game where players battle each other 
+                        in fast-paced 1v1 duels. You can build structures like ramps and walls (similar 
+                        to Fortnite), choose from different weapons, and test your aim and strategy in 
+                        team modes. It's free to play in your browser, focuses on matches and skill.
+                    </p>
+                    <div class="game-tags">
+                        <span class="game-tag">HTML Games</span>
+                        <span class="game-tag">More Games</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Footer Section -->
+            <section class="footer-section">
+                <div class="footer-title">
+                    <span>Made by:</span>
+                    <span class="contributor">
+                        <span>anon</span>
+                        <span class="star-icon">★</span>
+                    </span>
+                    <span>|</span>
+                    <span>Other contributors:</span>
+                    <span class="contributor">
+                        <span>? & bredcat</span>
+                        <span class="dizzy-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Shield/Badge outline (draws first) -->
+                                <path class="badge-outline" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
+                                      stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                                
+                                <!-- Shield fill (appears second) -->
+                                <path class="badge-fill" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
+                                      fill="#8b5cf6" opacity="0.3"/>
+                                
+                                <!-- Checkmark/Star in center (pops in last) -->
+                                <path class="badge-star" d="M9 12l2 2 4-4" 
+                                      stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </span>
+                </div>
+                <p class="footer-message">
+                    I have a lot of motivation and enthusiasm for this project. I will try my best 
+                    to keep up with the progress on this website! Trust me, this will be an epic 
+                    adventure for all of the people in this group, especially since this is risk-free 
+                    from trouble.
+                </p>
+                <div class="footer-links">
+                    <a href="https://sites.google.com/student.allenisd.org/the-game-vault/home-page/guidelines" class="footer-link" target="_blank">
+                        <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span>Guidelines</span>
+                    </a>
+                    <a href="https://sites.google.com/student.allenisd.org/the-game-vault/home-page/announcements" class="footer-link">
+                        <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                        </svg>
+                        <span>Announcements</span>
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toUTCString();
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
