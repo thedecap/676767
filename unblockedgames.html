@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
 <audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop></audio>
-        <base href="https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@main/">
+        <base href="https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@latest/">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="apple-touch-icon" href="/favicon.png">
@@ -13,7 +13,7 @@
             return 'Are you sure you want to leave? Any unsaved changes will be lost.';
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@main/gnmath.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@latest/gnmath.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
@@ -768,14 +768,14 @@ const searchBar = document.getElementById('searchBar');
 const sortOptions = document.getElementById('sortOptions');
 // https://www.jsdelivr.com/tools/purge
 const zonesurls = [
-    "https://cdn.jsdelivr.net/gh/shayderrr/assets@855a8932ae7b45f7606474ccf186643b673ffd5c/zones.json",
-    "https://cdn.jsdelivr.net/gh/shayderrr/assets@855a8932ae7b45f7606474ccf186643b673ffd5c/zones.json",
-    "https://cdn.jsdelivr.net/gh/shayderrr/assets@855a8932ae7b45f7606474ccf186643b673ffd5c/zones.json",
-    "https://cdn.jsdelivr.net/gh/shayderrr/assets@855a8932ae7b45f7606474ccf186643b673ffd5c/zones.json"
+    "https://cdn.jsdelivr.net/gh/shayderrr/assets@latest/zones.json",
+    "https://cdn.jsdelivr.net/gh/shayderrr/assets@latest/zones.json",
+    "https://cdn.jsdelivr.net/gh/shayderrr/assets@latest/zones.json",
+    "https://cdn.jsdelivr.net/gh/shayderrr/assets@latest/zones.json"
 ];
 let zonesURL = zonesurls[Math.floor(Math.random() * zonesurls.length)];
-const coverURL = "https://cdn.jsdelivr.net/gh/shayderrr/covers@main";
-const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+const coverURL = "https://cdn.jsdelivr.net/gh/shayderrr/covers@latest";
+const htmlURL = "https://cdn.jsdelivr.net/gh/gn-math/html@latest";
 let zones = [];
 let popularityData = {};
 const featuredContainer = document.getElementById('featuredZones');
@@ -792,7 +792,7 @@ async function listZones() {
             shajson = await sharesponse.json();
             sha = shajson[0]['sha'];
             if (sha) {
-                zonesURL = `https://cdn.jsdelivr.net/gh/shayderrr/assets@855a8932ae7b45f7606474ccf186643b673ffd5c/zones.json
+                zonesURL = `https://cdn.jsdelivr.net/gh/shayderrr/assets@latest/zones.json
 `;
             }
           } catch (error) {
@@ -801,7 +801,7 @@ async function listZones() {
                 if (secondarysharesponse && secondarysharesponse.status === 200) {
                     sha = (await secondarysharesponse.text()).trim();
                     if (sha) {
-                        zonesURL = `https://cdn.jsdelivr.net/gh/shayderrr/assets@855a8932ae7b45f7606474ccf186643b673ffd5c/zones.json
+                        zonesURL = `https://cdn.jsdelivr.net/gh/shayderrr/assets@latest/zones.json
 `;
                     }
                 }
@@ -876,7 +876,7 @@ async function listZones() {
 }
 async function fetchPopularity() {
     try {
-        const response = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period=year");
+        const response = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@latest/files?period=year");
         const data = await response.json();
         data.forEach(file => {
             const idMatch = file.name.match(/\/(\d+)\.html$/);
@@ -1362,7 +1362,7 @@ function loadPrivacy() {
         <div style="max-height: 60vh; overflow-y: auto;">
             <h2>PRIVACY POLICY</h2>
             <p>Last updated April 17, 2025</p>
-            <p>This Privacy Notice for gn-math ("we," "us," or "our"), describes how and why we might access, collect, store, use, and/or share ("process") your personal information when you use our services ("Services"), including when you:</p>
+            <p>This Privacy Notice for gnmath ("we," "us," or "our"), describes how and why we might access, collect, store, use, and/or share ("process") your personal information when you use our services ("Services"), including when you:</p>
             <ul>
                 <li>Visit our website at <a href="https://gn-math.github.io">https://gn-math.github.io</a>, or any website of ours that links to this Privacy Notice</li>
                 <li>Engage with us in other related ways, including any sales, marketing, or events</li>
