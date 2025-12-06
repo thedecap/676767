@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop></audio>
-  <link rel="icon" id="dynamic-favicon" href="https://instructure-uploads.s3.amazonaws.com/account_30000000002042/attachments/80746393/favicon-16x16.png">
+  <link rel="icon" href="https://instructure-uploads.s3.amazonaws.com/account_30000000002042/attachments/80746393/favicon-16x16.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -958,6 +958,7 @@
         <a class="nav-link" href="https://aihumanize.com" target="_blank">AI Humanize</a>
       </li>
       <li><div class="nav-category">🛠️ Tools</div>
+  
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/google.html">Google Web</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/zen.html">Browser Web</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/viewer.html">HTML Viewer</div>
@@ -2199,9 +2200,25 @@ const linkedMore = `
 <body>
   <a id="button" class="button">Launch In A New Tab</a>
   <script>
-    document.getElementById('button').addEventListener('click', function(){
-      window.showLaunchModal('https://cdn.jsdelivr.net/gh/shayderrr/676767/moregames.html');
-    });
+    document.getElementById('button').addEventListener('click', launch);
+    function launch() {
+      const newWin = window.open("about:blank", "_blank");
+      if (!newWin) {
+        console.error("Popup blocked");
+        return;
+      }
+      fetch("https://cdn.jsdelivr.net/gh/shayderrr/676767/moregames.html?t=" + Date.now())
+        .then(response => response.text())
+        .then(text => {
+          newWin.document.open();
+          newWin.document.write(text);
+          newWin.document.close();
+        })
+        .catch(err => {
+          console.error("Fetch error:", err);
+          newWin.close();
+        });
+    }
   <\/script>
 </body>
 </html>
@@ -2344,7 +2361,7 @@ const superGamesHTML = `
 </body>
 </html>
 `;
-
+    /// for devs, set func here, for ex js copy and then link it
 function setContent(html) {
   contentDisplay.innerHTML = html;
   Array.from(contentDisplay.querySelectorAll('script')).forEach(old => {
@@ -2406,6 +2423,12 @@ document.getElementById('superGamesLink').addEventListener('click', function(e){
 document.getElementById('operatingsystem').addEventListener('click', function(e){
   e.preventDefault();
   setContent(oslink);
+  hamburger.classList.remove('active');
+  menu.classList.remove('open');
+});
+  document.getElementById('aether').addEventListener('click', function(e){
+  e.preventDefault();
+  setContent(aetherHTML);
   hamburger.classList.remove('active');
   menu.classList.remove('open');
 });
