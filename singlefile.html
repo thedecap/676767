@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop></audio>
-  <link rel="icon" href="https://instructure-uploads.s3.amazonaws.com/account_30000000002042/attachments/80746393/favicon-16x16.png">
+  <link rel="icon" id="dynamic-favicon" href="https://instructure-uploads.s3.amazonaws.com/account_30000000002042/attachments/80746393/favicon-16x16.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -751,6 +751,55 @@
     .form-row {
       margin-bottom: 16px;
     }
+
+    /* Collapsible Sub-sections */
+    .nav-subsection {
+      margin: 0;
+    }
+
+    .nav-subsection-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .8rem 1rem;
+      color: var(--p1);
+      text-decoration: none;
+      border-radius: .75rem;
+      transition: all .3s;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    .nav-subsection-header:hover {
+      color: var(--white);
+      background: rgba(139, 92, 246, 0.15);
+      transform: translateX(8px);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+    }
+
+    .nav-subsection-header .arrow {
+      transition: transform 0.3s;
+      font-size: 0.8rem;
+    }
+
+    .nav-subsection.open .arrow {
+      transform: rotate(180deg);
+    }
+
+    .nav-subsection-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      padding-left: 1rem;
+    }
+
+    .nav-subsection.open .nav-subsection-content {
+      max-height: 500px;
+    }
     .auth-actions {
       display: flex;
       gap: 8px;
@@ -921,24 +970,36 @@
       <li><div class="nav-category">🕹️ Home Page</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@2057dace702c51405ad7cae4cd3ad9b9ecbbfa79/annoucements.html">Annoucements</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@d3eb0c7dae57730b5b870b44004436e743b6a3cc/guidelines.html">Guidelines</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@282c390e7bfdc29358991cbb387ff3f947a17ba0/tac.html">Terms & Conditions</div>
+        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/thedecap/676767@5cfe9a4556d45d24b860426d7586553e770253ed/extensions.html">Extension Analysis</div>
+        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@a6c8b4b278fc2dead0d1e29871532a4555947273/tac.html">Terms & Conditions</div>
       </li>
       <li><div class="nav-category">🎮 Games</div>
-        <div class="nav-link" id="htmlGamesLocalLink">HTML Games</div>
+        <div class="nav-link" id="htmlGamesLocalLink">UGS Games</div>
         <div class="nav-link" id="moreGamesLink">More Games</div>
         <div class="nav-link" id="ownerGamesLink">Owner Games</div>
+        <div class="nav-link" id="hubGamesLink">Gamers Hub</div>
         <div class="nav-link" id="ethansGamesLink">Backup Games</div>
         <div class="nav-link" id="extremeGamesLink">Extreme Games</div>
         <div class="nav-link" id="dominumGamesLink">Dominum UBG</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@0ab64b002583e7aecf6b0521fa313423ca0b7224/ug.html">Classroom UG</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@f2d077c7644d2ba8cc16fe70292f8d2a65f27d3e/selenite.html">Selenite Games</div>
-        <div class="nav-link" id="superGamesLink">Super Games</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@6cd2af4955f9022e59730d88d69e5afb8d2b4c64/petezah.html?t=">PeteZah UG</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@05dfa6e3fbca86e33f53be243447ef53d4606ee3/s3.html">UBS3 Games</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@cd44279172f58f038dd085f00cf47c22a1cf33cb/wouter.html">Wouter Planet</div>
+        <a class="nav-link" href="https://scratch.mit.edu/search/projects?q=%23game" target="_blank">Scratch Games</a>
+        <div class="nav-link" id="superGamesLink">Super UG Games</div>
+        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/thedecap/676767@c407a77f0b715676230a66d1f309bac94cf48830/minecraft-mods.html">Minecraft Mods</div>
+        <!-- Game Sites Subsection -->
+        <div class="nav-subsection">
+        <div class="nav-subsection-header">
+            <span>Game Sites</span>
+            <span class="arrow">˅</span>
+        </div>
+        <div class="nav-subsection-content">
+          <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@a5e8fa761ca9c2e3e09ffecef6e922f52287f606/only.html">Only Games</div>
+          <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@cd44279172f58f038dd085f00cf47c22a1cf33cb/wouter.html">Wouter Planet</div>
+          <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@05dfa6e3fbca86e33f53be243447ef53d4606ee3/s3.html">UBS3 Games</div>
+          <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@0ab64b002583e7aecf6b0521fa313423ca0b7224/ug.html">Classroom UG</div>
+          <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@6cd2af4955f9022e59730d88d69e5afb8d2b4c64/petezah.html?t=">PeteZah UG</div>
+          <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@f2d077c7644d2ba8cc16fe70292f8d2a65f27d3e/selenite.html">Selenite Games</div>
+        </div>
+        </div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@7f07cc21e7bc3fb43c8e1470b54615a8143f8a39/roblox.html">Roblox Tutorial</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@a5e8fa761ca9c2e3e09ffecef6e922f52287f606/only.html">Only Games</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/1v1lol.html">1V1 LOL (New!)</div>
       </li>
       <li><div class="nav-category">⚙️ AI Games</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/snake.html">Snake</div>
@@ -958,14 +1019,13 @@
         <a class="nav-link" href="https://aihumanize.com" target="_blank">AI Humanize</a>
       </li>
       <li><div class="nav-category">🛠️ Tools</div>
-  
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/google.html">Google Web</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/zen.html">Browser Web</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/viewer.html">HTML Viewer</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@00bcaeec990381e630b1d736ba3cedbf7d6c8da4/text.html">Text Encryptor</div>
-        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@5e88925ee5112dc02c8699b6e0802545ef6ba2ee/youtube.html">📺 YouTube</div>
+        <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@5e88925ee5112dc02c8699b6e0802545ef6ba2ee/youtube.html">YouTube</div>
         <div class="nav-link" data-src="https://cdn.jsdelivr.net/gh/shayderrr/676767@main/mp3.html">MP3 Downloader</div>
-        <div class="nav-link" id="operatingsystem">💻 OS System</div>
+        <div class="nav-link" id="operatingsystem">OS System</div>
       </li>
       <li><div class="nav-category">🍿 Movies</div>
         <a class="nav-link" href="https://docs.google.com/presentation/d/1YDZCGRJMcIXA6CDnnxEUcNuZuEx-NdUETeeVFulhYDg/edit?slide=id.g2ce541b7098_0_1#slide=id.g2ce541b7098_0_1" target="_blank" style="text-decoration: none; color: var(--p1);">Hulu TV</a>
@@ -1279,16 +1339,24 @@ function launchWithDisguise(url, cTitle, cFav) {
     .catch(err => { console.error("Fetch error:", err); newWin.close(); });
 }
 
+// Collapsible subsections
+document.querySelectorAll('.nav-subsection-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.parentElement.classList.toggle('open');
+  });
+});
+
 // Listen for postMessage from launch pages
 window.addEventListener('message', e => { if (e.data && e.data.type === 'showLaunchModal') showLaunchModal(e.data.url); });
-    const homePageHTML = `
+const homePageHTML = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop></audio>
+    <audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop></audio>
     <title>The Game Vault | 🕹️👾</title>
+    <audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop hidden></audio>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1323,7 +1391,8 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             overflow-x: hidden;
         }
 
-        /* Animated background */
+        /* --- BACKGROUND ELEMENTS --- */
+        
         .background-gradient {
             position: fixed;
             top: 0;
@@ -1334,26 +1403,16 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             z-index: 0;
         }
 
-        .stars {
+        /* Particle Canvas (Replaces static stars) */
+        #snow-canvas {
             position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                radial-gradient(2px 2px at 20px 30px, white, transparent),
-                radial-gradient(2px 2px at 60px 70px, white, transparent),
-                radial-gradient(1px 1px at 50px 50px, white, transparent),
-                radial-gradient(1px 1px at 130px 80px, white, transparent),
-                radial-gradient(2px 2px at 90px 150px, white, transparent);
-            background-repeat: repeat;
-            background-size: 200px 200px;
-            opacity: 0.4;
-            animation: starsMove 100s linear infinite;
             z-index: 1;
-        }
-
-        @keyframes starsMove {
-            from { transform: translateY(0); }
-            to { transform: translateY(-200px); }
+            pointer-events: none;
+            opacity: 0.6;
         }
 
         /* Purple glow orbs */
@@ -1362,7 +1421,7 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             border-radius: 50%;
             filter: blur(60px);
             opacity: 0.1;
-            z-index: 2;
+            z-index: 1;
             animation: float 20s ease-in-out infinite;
         }
 
@@ -1391,10 +1450,55 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             66% { transform: translate(-50px, 50px) scale(0.9); }
         }
 
-        /* Main container */
+        /* --- VOID CUBE STYLES --- */
+        .scene {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            perspective: 800px;
+            z-index: 2; /* Behind text, above background */
+            pointer-events: none; /* Allows clicking through the cube */
+            opacity: 0.8;
+        }
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: floatAndSpin 18s infinite linear;
+        }
+
+        .face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(10, 0, 20, 0.7); /* Slightly more transparent */
+            border: 2px solid var(--purple-500); /* Matched to site theme */
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5),
+                        inset 0 0 30px rgba(139, 92, 246, 0.2);
+            backface-visibility: visible;
+        }
+
+        .front  { transform: translateZ(100px); }
+        .back   { transform: rotateY(180deg) translateZ(100px); }
+        .right  { transform: rotateY(90deg) translateZ(100px); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); }
+        .top    { transform: rotateX(90deg) translateZ(100px); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+        @keyframes floatAndSpin {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+
+        /* --- MAIN LAYOUT --- */
         .container {
             position: relative;
-            z-index: 10;
+            z-index: 10; /* Ensures content is above the cube */
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
@@ -1402,15 +1506,32 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             animation: fadeIn 1s ease-out;
         }
 
+        /* Fixed: Only animate opacity, not transform - prevents centering jump */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        /* Header */
+        /* Header - explicitly NOT fixed, scrolls with page */
         .header {
-            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: center;
             padding: 3rem 0 2rem;
+            width: 100%;
+        }
+
+        .time-display {
+            position: relative;
+            font-size: 0.875rem;
+            color: var(--purple-300);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
         /* Page title */
@@ -1418,10 +1539,11 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             font-family: 'Space Grotesk', sans-serif;
             font-size: 3.5rem;
             font-weight: 700;
+            margin-top: 3rem;
             margin-bottom: 1.5rem;
             letter-spacing: -0.02em;
             text-align: center;
-            padding-top: 80px;
+            text-shadow: 0 0 30px rgba(0,0,0,0.8); /* Added shadow for readability over cube */
         }
 
         .page-title .title-text {
@@ -1441,14 +1563,17 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             max-width: 900px;
             margin-left: auto;
             margin-right: auto;
+            padding: 1rem;
+            border-radius: 1rem;
         }
 
         .page-subtitle a {
             text-decoration: none;
             color: var(--purple-200);
+            border-bottom: 1px dotted var(--purple-400);
         }
 
-        /* SIMPLIFIED SEARCH SECTION */
+        /* SEARCH SECTION */
         .search-section {
             max-width: 600px;
             margin: 0 auto 3rem;
@@ -1462,8 +1587,9 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
         .search-input {
             width: 100%;
             padding: 14px 48px 14px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: rgba(0, 0, 0, 0.6); /* Darker bg for contrast */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.4);
             border-radius: 12px;
             color: var(--white);
             font-size: 1rem;
@@ -1477,7 +1603,7 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
         }
 
         .search-input:focus {
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(0, 0, 0, 0.8);
             border-color: var(--purple-500);
             box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
         }
@@ -1507,7 +1633,6 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             height: 20px;
         }
 
-        /* Quick filters - cleaner design */
         .quick-filters {
             display: flex;
             justify-content: center;
@@ -1518,8 +1643,8 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
 
         .filter-btn {
             padding: 0.5rem 1rem;
-            background: transparent;
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 8px;
             color: var(--purple-300);
             font-size: 0.875rem;
@@ -1530,7 +1655,7 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
         }
 
         .filter-btn:hover {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(139, 92, 246, 0.2);
             border-color: var(--purple-400);
             color: var(--white);
         }
@@ -1550,7 +1675,7 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
         }
 
         .game-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(20, 10, 30, 0.6);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1.5rem;
@@ -1560,8 +1685,8 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
         }
 
         .game-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(30, 15, 45, 0.8);
+            border-color: rgba(139, 92, 246, 0.5);
             transform: translateY(-5px);
             box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
         }
@@ -1587,6 +1712,7 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             font-size: 0.875rem;
             text-align: center;
             padding: 1rem;
+            overflow: hidden;
         }
 
         .game-image {
@@ -1640,7 +1766,7 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
 
         /* Footer section */
         .footer-section {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(20, 10, 30, 0.8);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1.5rem;
@@ -1695,85 +1821,24 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             height: 100%;
         }
 
-        /* Sequential reveal animation for shield parts */
-        .badge-outline {
-            stroke-dasharray: 100;
-            stroke-dashoffset: 100;
-            animation: drawOutline 2s ease-in-out infinite;
-        }
-
-        .badge-fill {
-            opacity: 0;
-            animation: fadeInBadge 2s ease-in-out infinite;
-            animation-delay: 0.5s;
-        }
-
-        .badge-star {
-            opacity: 0;
-            transform: scale(0);
-            transform-origin: center;
-            animation: popInStar 2s ease-in-out infinite;
-            animation-delay: 1s;
-        }
+        /* Badge animations */
+        .badge-outline { stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawOutline 2s ease-in-out infinite; }
+        .badge-fill { opacity: 0; animation: fadeInBadge 2s ease-in-out infinite; animation-delay: 0.5s; }
+        .badge-star { opacity: 0; transform: scale(0); transform-origin: center; animation: popInStar 2s ease-in-out infinite; animation-delay: 1s; }
 
         @keyframes drawOutline {
-            0% {
-                stroke-dashoffset: 100;
-                opacity: 0;
-            }
-            25% {
-                stroke-dashoffset: 0;
-                opacity: 1;
-            }
-            75% {
-                stroke-dashoffset: 0;
-                opacity: 1;
-            }
-            100% {
-                stroke-dashoffset: 100;
-                opacity: 0;
-            }
+            0% { stroke-dashoffset: 100; opacity: 0; }
+            25%, 75% { stroke-dashoffset: 0; opacity: 1; }
+            100% { stroke-dashoffset: 100; opacity: 0; }
         }
-
         @keyframes fadeInBadge {
-            0% {
-                opacity: 0;
-            }
-            25% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            75% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
+            0%, 25%, 100% { opacity: 0; }
+            50%, 75% { opacity: 1; }
         }
-
         @keyframes popInStar {
-            0% {
-                opacity: 0;
-                transform: scale(0);
-            }
-            50% {
-                opacity: 0;
-                transform: scale(0);
-            }
-            62.5% {
-                opacity: 1;
-                transform: scale(1.2);
-            }
-            75% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0);
-            }
+            0%, 50%, 100% { opacity: 0; transform: scale(0); }
+            62.5% { opacity: 1; transform: scale(1.2); }
+            75% { opacity: 1; transform: scale(1); }
         }
 
         .footer-message {
@@ -1811,93 +1876,63 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
             box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
         }
 
-        /* Responsive design */
+        /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .page-title {
-                font-size: 2.5rem;
-            }
-
-            .page-subtitle {
-                font-size: 1rem;
-            }
-
-            .search-input {
-                font-size: 0.9375rem;
-                padding: 12px 44px 12px 16px;
-            }
-
-            .game-header {
-                flex-direction: column;
-            }
-
+            .container { padding: 1rem; }
+            .page-title { font-size: 2.5rem; }
+            .page-subtitle { font-size: 1rem; }
+            .scene { width: 150px; height: 150px; }
+            .face { width: 150px; height: 150px; }
+            .front { transform: translateZ(75px); }
+            .back { transform: rotateY(180deg) translateZ(75px); }
+            .right { transform: rotateY(90deg) translateZ(75px); }
+            .left { transform: rotateY(-90deg) translateZ(75px); }
+            .top { transform: rotateX(90deg) translateZ(75px); }
+            .bottom { transform: rotateX(-90deg) translateZ(75px); }
+            .game-header { flex-direction: column; }
             .game-image-placeholder,
-            .game-image {
-                width: 100%;
-                height: 200px;
-            }
-
-            .game-title {
-                font-size: 1.5rem;
-            }
-
-            .footer-title {
-                font-size: 1.25rem;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
+            .game-image { width: 100%; height: 200px; }
+            .game-title { font-size: 1.5rem; }
+            .footer-title { font-size: 1.25rem; flex-direction: column; gap: 0.5rem; }
         }
 
         @media (max-width: 480px) {
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .search-input {
-                font-size: 0.875rem;
-            }
-
-            .quick-filters {
-                gap: 0.5rem;
-            }
-
-            .filter-btn {
-                font-size: 0.8125rem;
-                padding: 0.4rem 0.8rem;
-            }
-
-            .game-card {
-                padding: 1.5rem;
-            }
-
-            .footer-section {
-                padding: 2rem 1.5rem;
-            }
-
-            .footer-links {
-                flex-direction: column;
-            }
-
-            .footer-link {
-                width: 100%;
-                justify-content: center;
-            }
+            .page-title { font-size: 2rem; }
+            .search-input { font-size: 0.875rem; }
+            .quick-filters { gap: 0.5rem; }
+            .filter-btn { font-size: 0.8125rem; padding: 0.4rem 0.8rem; }
+            .game-card { padding: 1.5rem; }
+            .footer-section { padding: 2rem 1.5rem; }
+            .footer-links { flex-direction: column; }
+            .footer-link { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
     <!-- Background elements -->
     <div class="background-gradient"></div>
-    <div class="stars"></div>
+    <canvas id="snow-canvas"></canvas>
+    
+    <!-- VOID CUBE CONTAINER -->
+    <div class="scene">
+        <div class="cube">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face right"></div>
+            <div class="face left"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+        </div>
+    </div>
+
+    <!-- Original Orbs -->
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
     <!-- Main content -->
     <div class="container">
         <header class="header">
+            <div class="time-display" id="currentTime"></div>
         </header>
 
         <main>
@@ -1907,7 +1942,7 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
                 <a href="https://forms.gle/g6GjUZYHRLpRway36" target="_blank">Want to suggest games? Click here!</a>
             </p>
 
-            <!-- Simplified Search Section -->
+            <!-- Search Section -->
             <div class="search-section">
                 <form id="searchForm">
                     <div class="search-wrapper">
@@ -1996,17 +2031,9 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
                         <span>? & Bredcat</span>
                         <span class="dizzy-icon">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <!-- Shield/Badge outline (draws first) -->
-                                <path class="badge-outline" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
-                                      stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
-                                
-                                <!-- Shield fill (appears second) -->
-                                <path class="badge-fill" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" 
-                                      fill="#8b5cf6" opacity="0.3"/>
-                                
-                                <!-- Checkmark/Star in center (pops in last) -->
-                                <path class="badge-star" d="M9 12l2 2 4-4" 
-                                      stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path class="badge-outline" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                                <path class="badge-fill" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" fill="#8b5cf6" opacity="0.3"/>
+                                <path class="badge-star" d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </span>
                     </span>
@@ -2018,13 +2045,13 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
                     from trouble.
                 </p>
                 <div class="footer-links">
-                    <a href="https://sites.google.com/student.allenisd.org/the-game-vault/home-page/guidelines" class="footer-link" target="_blank">
+                    <a href="https://sites.google.com/student.allenisd.org/lvhowjudmlc7pxo443ru/home/guidelines" class="footer-link" target="_blank">
                         <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         <span>Guidelines</span>
                     </a>
-                    <a href="https://sites.google.com/student.allenisd.org/the-game-vault/home-page/announcements" class="footer-link">
+                    <a href="https://sites.google.com/student.allenisd.org/lvhowjudmlc7pxo443ru/home/announcements" class="footer-link">
                         <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                         </svg>
@@ -2036,23 +2063,85 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
     </div>
 
     <script>
+        // --- PARTICLE ANIMATION SCRIPT (Replaces static stars) ---
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height;
+                this.speed = Math.random() * 1 + 0.5;
+                this.size = Math.random() * 2 + 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                // Changed color to a soft purple/white mix to fit theme
+                ctx.fillStyle = \`rgba(220, 210, 255, \${this.opacity})\`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const particleCount = 100;
+            for (let i = 0; i < particleCount; i++) {
+                const p = new Particle();
+                p.y = Math.random() * height; 
+                particles.push(p);
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        initParticles();
+        animateParticles();
+
+
+        // --- TIME AND SEARCH UTILITIES ---
         function updateTime() {
             const now = new Date();
             const timeString = now.toUTCString();
             document.getElementById('currentTime').textContent = timeString;
         }
 
-        // Update time immediately and then every second
         updateTime();
         setInterval(updateTime, 1000);
 
-        // Search functionality
         document.addEventListener('DOMContentLoaded', function() {
             const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('searchInput');
             const filterBtns = document.querySelectorAll('.filter-btn');
 
-            // Handle form submission
             searchForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const query = searchInput.value.trim();
@@ -2061,7 +2150,6 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
                 }
             });
 
-            // Handle filter button clicks
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     const searchTerm = this.getAttribute('data-search');
@@ -2070,21 +2158,12 @@ window.addEventListener('message', e => { if (e.data && e.data.type === 'showLau
                 });
             });
 
-            // Function to perform the search
             function performSearch(query) {
-                // Construct the search URL
-                const searchUrl = \`https://sites.google.com/search/student.allenisd.org/the-game-vault?query=\${encodeURIComponent(query)}\`;
-                
-                // Open in new tab
+                const searchUrl = \`https://sites.google.com/search/student.allenisd.org/lvhowjudmlc7pxo443ru/?query=\${encodeURIComponent(query)}\`;
                 window.open(searchUrl, '_blank');
-                
-                // Optional: Clear the search input after search
-                // searchInput.value = '';
             }
 
-            // Add keyboard shortcuts
             document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + K to focus search
                 if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                     e.preventDefault();
                     searchInput.focus();
@@ -2200,25 +2279,9 @@ const linkedMore = `
 <body>
   <a id="button" class="button">Launch In A New Tab</a>
   <script>
-    document.getElementById('button').addEventListener('click', launch);
-    function launch() {
-      const newWin = window.open("about:blank", "_blank");
-      if (!newWin) {
-        console.error("Popup blocked");
-        return;
-      }
-      fetch("https://cdn.jsdelivr.net/gh/shayderrr/676767/moregames.html?t=" + Date.now())
-        .then(response => response.text())
-        .then(text => {
-          newWin.document.open();
-          newWin.document.write(text);
-          newWin.document.close();
-        })
-        .catch(err => {
-          console.error("Fetch error:", err);
-          newWin.close();
-        });
-    }
+    document.getElementById('button').addEventListener('click', function(){
+      window.showLaunchModal('https://cdn.jsdelivr.net/gh/shayderrr/676767/moregames.html');
+    });
   <\/script>
 </body>
 </html>
@@ -2361,7 +2424,7 @@ const superGamesHTML = `
 </body>
 </html>
 `;
-    /// for devs, set func here, for ex js copy and then link it
+
 function setContent(html) {
   contentDisplay.innerHTML = html;
   Array.from(contentDisplay.querySelectorAll('script')).forEach(old => {
@@ -2423,12 +2486,6 @@ document.getElementById('superGamesLink').addEventListener('click', function(e){
 document.getElementById('operatingsystem').addEventListener('click', function(e){
   e.preventDefault();
   setContent(oslink);
-  hamburger.classList.remove('active');
-  menu.classList.remove('open');
-});
-  document.getElementById('aether').addEventListener('click', function(e){
-  e.preventDefault();
-  setContent(aetherHTML);
   hamburger.classList.remove('active');
   menu.classList.remove('open');
 });
