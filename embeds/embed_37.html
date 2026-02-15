@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>The Game Vault | 🕹️👾</title>
+	<audio src="https://cdn.jsdelivr.net/gh/shayderrr/Static@main/Ambient-BreakcoreDnB-Mix-02.mp3" autoplay loop
+		hidden></audio>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+		rel="stylesheet">
+	<script type="module">
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyC7ej_kveF4ZPpcd-ExTucowVquD-X9pKg",
+authDomain: "visits-3193b.firebaseapp.com",
+databaseURL: "https://visits-3193b-default-rtdb.firebaseio.com",
+projectId: "visits-3193b",
+storageBucket: "visits-3193b.firebasestorage.app",
+messagingSenderId: "845579648256",
+appId: "1:845579648256:web:4a1b8d70f3f0bcecfe87e5",
+measurementId: "G-3RVG8XWWCQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getDatabase(app);
+const visitsRef = ref(db, 'total_page_visits');
+
+runTransaction(visitsRef, (currentValue) => {
+return (currentValue || 0) + 1;
+});
+
+onValue(visitsRef, (snapshot) => {
+const count = snapshot.val();
+const display = document.getElementById('visitCounterValue');
+if (display) {
+display.textContent = count.toLocaleString();
+}
+});
+</script>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			--purple-900: #1a0033;
+			--purple-800: #2d0052;
+			--purple-700: #4a0080;
+			--purple-600: #6b21a8;
+			--purple-500: #8b5cf6;
+			--purple-400: #a78bfa;
+			--purple-300: #c4b5fd;
+			--purple-200: #e9d5ff;
+			--purple-100: #f3e8ff;
+			--black: #000000;
+			--white: #ffffff;
+			--gold: #fbbf24;
+			--discord: #5865F2;
+			--space-xs: 0.5rem;
+			--space-sm: 1rem;
+			--space-md: 1.5rem;
+			--space-lg: 2.5rem;
+			--space-xl: 4rem;
+			--transition-fast: 150ms ease;
+			--transition-smooth: 250ms ease;
+			--radius-sm: 0.5rem;
+			--radius-md: 1rem;
+			--radius-lg: 1.5rem;
+			--radius-full: 9999px;
+		}
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			background: var(--black);
+			color: var(--white);
+			min-height: 100vh;
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		.background-gradient {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+			z-index: 0;
+		}
+
+		#snow-canvas {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+			pointer-events: none;
+			opacity: 0.6;
+		}
+
+		.orb {
+			position: fixed;
+			border-radius: 50%;
+			filter: blur(60px);
+			opacity: 0.1;
+			z-index: 1;
+			animation: float 20s ease-in-out infinite;
+		}
+
+		.orb-1 {
+			width: 400px;
+			height: 400px;
+			background: radial-gradient(circle, var(--purple-600), transparent);
+			top: -100px;
+			left: -100px;
+			animation-duration: 25s;
+		}
+
+		.orb-2 {
+			width: 350px;
+			height: 350px;
+			background: radial-gradient(circle, var(--purple-700), transparent);
+			bottom: -100px;
+			right: -100px;
+			animation-duration: 30s;
+			animation-delay: -10s;
+		}
+
+		@keyframes float {
+
+			0%,
+			100% {
+				transform: translate(0, 0) scale(1);
+			}
+
+			33% {
+				transform: translate(50px, -50px) scale(1.1);
+			}
+
+			66% {
+				transform: translate(-50px, 50px) scale(0.9);
+			}
+		}
+
+		.scene {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 200px;
+			height: 200px;
+			perspective: 800px;
+			z-index: 2;
+			pointer-events: none;
+			opacity: 0.8;
+		}
+
+		.cube {
+			width: 100%;
+			height: 100%;
+			position: relative;
+			transform-style: preserve-3d;
+			animation: floatAndSpin 18s infinite linear;
+		}
+
+		.face {
+			position: absolute;
+			width: 200px;
+			height: 200px;
+			background: rgba(10, 0, 20, 0.7);
+			border: 2px solid var(--purple-500);
+			box-shadow: 0 0 20px rgba(139, 92, 246, 0.5),
+				inset 0 0 30px rgba(139, 92, 246, 0.2);
+			backface-visibility: visible;
+		}
+
+		.front {
+			transform: translateZ(100px);
+		}
+
+		.back {
+			transform: rotateY(180deg) translateZ(100px);
+		}
+
+		.right {
+			transform: rotateY(90deg) translateZ(100px);
+		}
+
+		.left {
+			transform: rotateY(-90deg) translateZ(100px);
+		}
+
+		.top {
+			transform: rotateX(90deg) translateZ(100px);
+		}
+
+		.bottom {
+			transform: rotateX(-90deg) translateZ(100px);
+		}
+
+		@keyframes floatAndSpin {
+			0% {
+				transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+			}
+
+			100% {
+				transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+			}
+		}
+
+		.container {
+			position: relative;
+			z-index: 10;
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 2rem;
+			min-height: 100vh;
+			animation: fadeIn 1s ease-out;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		.header {
+			text-align: center;
+			padding: 3rem 0 2rem;
+		}
+
+		.time-display {
+			display: inline-block;
+			font-size: 0.875rem;
+			color: var(--purple-300);
+			background: rgba(139, 92, 246, 0.1);
+			padding: 0.5rem 1.25rem;
+			border-radius: 2rem;
+			border: 1px solid rgba(139, 92, 246, 0.2);
+			backdrop-filter: blur(10px);
+			margin-bottom: 2rem;
+			font-weight: 500;
+			letter-spacing: 0.5px;
+		}
+
+		.page-title {
+			font-family: 'Space Grotesk', sans-serif;
+			font-size: 3.5rem;
+			font-weight: 700;
+			margin-bottom: 1.5rem;
+			letter-spacing: -0.02em;
+			text-align: center;
+			text-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+			/* Ensure the line doesn't snap height when elements disappear */
+			display: block;
+			min-height: 1.2em;
+			white-space: nowrap;
+			line-height: 1.2;
+		}
+
+		.page-title>span {
+			vertical-align: middle;
+		}
+
+		.page-title .title-text {
+			color: var(--purple-400);
+			-webkit-text-fill-color: var(--purple-400);
+		}
+
+		.page-title .title-text.final-title {
+			background: linear-gradient(135deg, var(--white) 0%, var(--purple-200) 50%, var(--purple-300) 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
+
+		#welcomePrefix {
+			display: inline-block;
+			overflow: hidden;
+			white-space: pre;
+			transition: opacity 1.5s ease, max-width 1.5s ease;
+			max-width: 500px;
+			opacity: 1;
+			background: linear-gradient(135deg, var(--purple-200) 0%, var(--white) 50%, var(--purple-300) 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
+
+		.typewriter-cursor::after {
+			content: '|';
+			margin-left: 2px;
+			color: var(--purple-400);
+			-webkit-text-fill-color: var(--purple-400);
+			animation: blink 1s ease-in-out infinite;
+		}
+
+		/* Prevent emoji from shifting layout */
+		#titleIcon {
+			display: inline;
+			font-size: 0.9em;
+			line-height: 1;
+			white-space: nowrap;
+			vertical-align: middle;
+		}
+
+		#cursorSpan {
+			vertical-align: middle;
+		}
+
+		@keyframes blink {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0;
+			}
+		}
+
+		.page-subtitle {
+			font-size: 1.125rem;
+			color: var(--purple-200);
+			margin-bottom: 3rem;
+			font-weight: 400;
+			text-align: center;
+			line-height: 1.8;
+			max-width: 900px;
+			margin-left: auto;
+			margin-right: auto;
+			padding: 1rem;
+			border-radius: 1rem;
+		}
+
+		.page-subtitle a {
+			text-decoration: none;
+			color: var(--purple-200);
+			border-bottom: 1px dotted var(--purple-400);
+		}
+
+		.search-section {
+			max-width: 650px;
+			margin: 0 auto 3rem;
+			padding: 0 var(--space-sm);
+		}
+
+		.search-wrapper {
+			position: relative;
+			width: 100%;
+		}
+
+		.search-input {
+			width: 100%;
+			padding: 1.25rem 3.5rem 1.25rem 1.5rem;
+			background: rgba(0, 0, 0, 0.7);
+			backdrop-filter: blur(20px);
+			border: 2px solid rgba(139, 92, 246, 0.3);
+			border-radius: var(--radius-lg);
+			color: var(--white);
+			font-size: 1.125rem;
+			font-family: 'Inter', sans-serif;
+			transition: var(--transition-smooth);
+			outline: none;
+		}
+
+		.search-input::placeholder {
+			color: rgba(196, 181, 253, 0.5);
+		}
+
+		.search-input:focus {
+			background: rgba(0, 0, 0, 0.85);
+			border-color: var(--purple-500);
+			box-shadow:
+				0 0 0 4px rgba(139, 92, 246, 0.15),
+				0 0 40px rgba(139, 92, 246, 0.2);
+		}
+
+		.search-button {
+			position: absolute;
+			right: 8px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: transparent;
+			border: none;
+			border-radius: var(--radius-md);
+			color: var(--white);
+			cursor: pointer;
+			padding: 0.75rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: var(--transition-fast);
+		}
+
+		.search-button:hover {
+			background: var(--purple-500);
+			transform: translateY(-50%) scale(1.05);
+		}
+
+		.search-icon {
+			width: 22px;
+			height: 22px;
+		}
+
+		.quick-filters {
+			display: flex;
+			justify-content: center;
+			gap: var(--space-xs);
+			margin-top: var(--space-md);
+			flex-wrap: wrap;
+		}
+
+		.filter-btn {
+			padding: 0.6rem 1.25rem;
+			background: rgba(0, 0, 0, 0.4);
+			border: 1px solid rgba(139, 92, 246, 0.2);
+			border-radius: var(--radius-full);
+			color: var(--purple-300);
+			font-size: 0.875rem;
+			font-weight: 500;
+			cursor: pointer;
+			transition: var(--transition-fast);
+			font-family: 'Inter', sans-serif;
+		}
+
+		.filter-btn:hover {
+			background: rgba(139, 92, 246, 0.15);
+			border-color: var(--purple-400);
+			color: var(--white);
+			transform: translateY(-2px);
+		}
+
+		.divider {
+			height: 1px;
+			background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+			margin: 3rem 0;
+			opacity: 0.3;
+		}
+
+		.games-section {
+			max-width: 900px;
+			margin: 0 auto 3rem;
+		}
+
+		.game-card {
+			background: rgba(20, 10, 30, 0.6);
+			backdrop-filter: blur(20px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 1.5rem;
+			padding: 2rem;
+			margin-bottom: 2rem;
+			transition: all 0.3s ease;
+		}
+
+		.game-card:hover {
+			background: rgba(30, 15, 45, 0.8);
+			border-color: rgba(139, 92, 246, 0.5);
+			transform: translateY(-5px);
+			box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
+		}
+
+		.game-header {
+			display: flex;
+			align-items: flex-start;
+			gap: 1.5rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.game-image-placeholder {
+			width: 200px;
+			height: 150px;
+			background: rgba(139, 92, 246, 0.1);
+			border-radius: 1rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			color: var(--purple-300);
+			font-size: 0.875rem;
+			text-align: center;
+			padding: 1rem;
+			overflow: hidden;
+		}
+
+		.game-image {
+			width: 200px;
+			height: 150px;
+			border-radius: 1rem;
+			object-fit: cover;
+			flex-shrink: 0;
+		}
+
+		.game-info {
+			flex: 1;
+		}
+
+		.game-title {
+			font-family: 'Space Grotesk', sans-serif;
+			font-size: 1.75rem;
+			font-weight: 700;
+			color: var(--white);
+			margin-bottom: 0.75rem;
+		}
+
+		.game-rating {
+			font-size: 1.25rem;
+			margin-bottom: 0.5rem;
+			letter-spacing: 0.1em;
+		}
+
+		.game-description {
+			font-size: 1rem;
+			line-height: 1.8;
+			color: var(--purple-100);
+			margin-bottom: 1rem;
+		}
+
+		.game-tags {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.game-tag {
+			background: rgba(139, 92, 246, 0.2);
+			color: var(--purple-200);
+			padding: 0.4rem 1rem;
+			border-radius: 1rem;
+			font-size: 0.875rem;
+			font-weight: 500;
+			border: 1px solid rgba(139, 92, 246, 0.3);
+		}
+
+		.footer-section {
+			background: rgba(20, 10, 30, 0.8);
+			backdrop-filter: blur(20px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 1.5rem;
+			padding: 2.5rem;
+			max-width: 900px;
+			margin: 3rem auto;
+			text-align: center;
+		}
+
+		.footer-title {
+			font-family: 'Space Grotesk', sans-serif;
+			font-size: 1.5rem;
+			font-weight: 600;
+			color: var(--white);
+			margin-bottom: 1rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.75rem;
+			flex-wrap: wrap;
+		}
+
+		.contributor {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.star-icon {
+			display: inline-block;
+			font-size: 1.25rem;
+			animation: rotateStar 3s linear infinite;
+			filter: drop-shadow(0 0 8px #fbbf24);
+			color: #fbbf24;
+		}
+
+		@keyframes rotateStar {
+			from {
+				transform: rotate(0deg);
+			}
+
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		.dizzy-icon {
+			display: inline-block;
+			position: relative;
+			width: 1.5rem;
+			height: 1.5rem;
+			margin-left: 0.25rem;
+		}
+
+		.dizzy-icon svg {
+			width: 100%;
+			height: 100%;
+		}
+
+		.badge-outline {
+			stroke-dasharray: 100;
+			stroke-dashoffset: 100;
+			animation: drawOutline 2s ease-in-out infinite;
+		}
+
+		.badge-fill {
+			opacity: 0;
+			animation: fadeInBadge 2s ease-in-out infinite;
+			animation-delay: 0.5s;
+		}
+
+		.badge-star {
+			opacity: 0;
+			transform: scale(0);
+			transform-origin: center;
+			animation: popInStar 2s ease-in-out infinite;
+			animation-delay: 1s;
+		}
+
+		@keyframes drawOutline {
+			0% {
+				stroke-dashoffset: 100;
+				opacity: 0;
+			}
+
+			25%,
+			75% {
+				stroke-dashoffset: 0;
+				opacity: 1;
+			}
+
+			100% {
+				stroke-dashoffset: 100;
+				opacity: 0;
+			}
+		}
+
+		@keyframes fadeInBadge {
+
+			0%,
+			25%,
+			100% {
+				opacity: 0;
+			}
+
+			50%,
+			75% {
+				opacity: 1;
+			}
+		}
+
+		@keyframes popInStar {
+
+			0%,
+			50%,
+			100% {
+				opacity: 0;
+				transform: scale(0);
+			}
+
+			62.5% {
+				opacity: 1;
+				transform: scale(1.2);
+			}
+
+			75% {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+
+		.footer-message {
+			font-size: 1rem;
+			line-height: 1.8;
+			color: var(--purple-100);
+			margin-bottom: 1.5rem;
+		}
+
+		.footer-links {
+			display: flex;
+			justify-content: center;
+			gap: 1rem;
+			flex-wrap: wrap;
+		}
+
+		.footer-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.5rem;
+			background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+			color: var(--white);
+			padding: 0.75rem 1.5rem;
+			border-radius: 0.75rem;
+			font-size: 0.9375rem;
+			font-weight: 600;
+			text-decoration: none;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+			transition: all 0.3s ease;
+		}
+
+		.footer-link:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+		}
+
+		/* Top Left - Visit Counter */
+		.top-left-container {
+			position: absolute;
+			top: 20px;
+			left: 20px;
+			z-index: 1000;
+		}
+
+		/* Top Right - Discord Button */
+		.top-right-container {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			z-index: 1000;
+		}
+
+		.discord-float-btn {
+			width: 50px;
+			height: 50px;
+			background: rgba(88, 101, 242, 0.2);
+			border: 1px solid rgba(88, 101, 242, 0.5);
+			border-radius: 50%;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			backdrop-filter: blur(5px);
+			transition: all 0.3s ease;
+			overflow: hidden;
+			padding: 0;
+		}
+
+		.discord-float-btn:hover {
+			background: rgba(88, 101, 242, 0.8);
+			transform: scale(1.1);
+			box-shadow: 0 0 15px rgba(88, 101, 242, 0.6);
+		}
+
+		.discord-float-btn img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+			animation: swirl 6s linear infinite;
+		}
+
+		.discord-float-btn:hover img {
+			animation-duration: 1.5s;
+		}
+
+		@keyframes swirl {
+			from {
+				transform: rotate(0deg);
+			}
+
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		/* Visit Counter Badge */
+		.visit-counter-badge {
+			background: rgba(139, 92, 246, 0.15);
+			border: 1px solid rgba(139, 92, 246, 0.3);
+			border-radius: 20px;
+			padding: 4px 10px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			backdrop-filter: blur(10px);
+			font-size: 0.75rem;
+			color: var(--purple-200);
+			white-space: nowrap;
+		}
+
+		.visit-counter-badge .pulse-dot {
+			width: 6px;
+			height: 6px;
+			background: #22c55e;
+			border-radius: 50%;
+			animation: indicatorPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+			flex-shrink: 0;
+		}
+
+		.visit-counter-badge .visit-number {
+			font-family: 'Space Grotesk', sans-serif;
+			font-weight: 600;
+			color: var(--white);
+		}
+
+		@keyframes indicatorPulse {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0.4;
+			}
+		}
+
+		.modal-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.8);
+			backdrop-filter: blur(8px);
+			z-index: 2000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.3s ease;
+		}
+
+		.modal-overlay.active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.modal-content {
+			background: #1a0033;
+			border: 1px solid var(--purple-500);
+			padding: 2rem;
+			border-radius: 1.5rem;
+			text-align: center;
+			width: 90%;
+			max-width: 450px;
+			position: relative;
+			box-shadow: 0 0 50px rgba(88, 101, 242, 0.2);
+		}
+
+		.modal-title {
+			font-family: 'Space Grotesk', sans-serif;
+			font-size: 1.5rem;
+			color: white;
+			margin-bottom: 1.5rem;
+		}
+
+		.modal-close {
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			background: none;
+			border: none;
+			color: var(--purple-300);
+			font-size: 1.5rem;
+			cursor: pointer;
+			padding: 5px;
+			line-height: 1;
+		}
+
+		.modal-close:hover {
+			color: white;
+		}
+
+		.link-container {
+			display: flex;
+			align-items: center;
+			background: rgba(0, 0, 0, 0.4);
+			padding: 12px;
+			border-radius: 12px;
+			border: 1px solid rgba(139, 92, 246, 0.3);
+			gap: 10px;
+		}
+
+		.discord-link {
+			flex: 1;
+			color: var(--purple-300);
+			text-decoration: none;
+			font-family: monospace;
+			font-size: 0.9rem;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.copy-btn {
+			background: var(--purple-600);
+			border: none;
+			border-radius: 8px;
+			width: 36px;
+			height: 36px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+
+		.copy-btn:hover {
+			background: var(--purple-500);
+		}
+
+		@media (max-width: 768px) {
+			.container {
+				padding: 1rem;
+			}
+
+			.page-title {
+				font-size: 2.5rem;
+			}
+
+			.page-subtitle {
+				font-size: 1rem;
+			}
+
+			.scene {
+				width: 150px;
+				height: 150px;
+			}
+
+			.face {
+				width: 150px;
+				height: 150px;
+			}
+
+			.front {
+				transform: translateZ(75px);
+			}
+
+			.back {
+				transform: rotateY(180deg) translateZ(75px);
+			}
+
+			.right {
+				transform: rotateY(90deg) translateZ(75px);
+			}
+
+			.left {
+				transform: rotateY(-90deg) translateZ(75px);
+			}
+
+			.top {
+				transform: rotateX(90deg) translateZ(75px);
+			}
+
+			.bottom {
+				transform: rotateX(-90deg) translateZ(75px);
+			}
+
+			.game-header {
+				flex-direction: column;
+			}
+
+			.game-image-placeholder,
+			.game-image {
+				width: 100%;
+				height: 200px;
+			}
+
+			.game-title {
+				font-size: 1.5rem;
+			}
+
+			.footer-title {
+				font-size: 1.25rem;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+
+			.search-input {
+				font-size: 1rem;
+				padding: 1rem 3rem 1rem 1.25rem;
+			}
+
+			.footer-links {
+				flex-direction: column;
+			}
+
+			.footer-link {
+				width: 100%;
+				justify-content: center;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.page-title {
+				font-size: 2rem;
+			}
+
+			.search-input {
+				font-size: 0.875rem;
+			}
+
+			.quick-filters {
+				gap: 0.4rem;
+			}
+
+			.filter-btn {
+				font-size: 0.8rem;
+				padding: 0.5rem 1rem;
+			}
+
+			.game-card {
+				padding: 1.5rem;
+			}
+
+			.footer-section {
+				padding: 2rem 1.5rem;
+			}
+
+			.top-left-container {
+				top: 10px;
+				left: 10px;
+			}
+
+			.top-right-container {
+				top: 10px;
+				right: 10px;
+			}
+
+			.discord-float-btn {
+				width: 40px;
+				height: 40px;
+			}
+
+			.visit-counter-badge {
+				font-size: 0.65rem;
+				padding: 3px 8px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="background-gradient"></div>
+	<canvas id="snow-canvas"></canvas>
+
+	<div class="scene">
+		<div class="cube">
+			<div class="face front"></div>
+			<div class="face back"></div>
+			<div class="face right"></div>
+			<div class="face left"></div>
+			<div class="face top"></div>
+			<div class="face bottom"></div>
+		</div>
+	</div>
+
+	<div class="orb orb-1"></div>
+	<div class="orb orb-2"></div>
+
+	<!-- Top elements positioned at screen edges, scroll with page -->
+	<div class="top-left-container">
+		<div class="visit-counter-badge">
+			<div class="pulse-dot"></div>
+			<span class="visit-number" id="visitCounterValue">0</span>
+			<span>visits</span>
+		</div>
+	</div>
+
+	<div class="top-right-container">
+		<button id="discordBtn" class="discord-float-btn" aria-label="Join Discord">
+        <img src="https://cdn.jsdelivr.net/gh/gn-math/assets@main/dc.png" alt="Discord">
+    </button>
+	</div>
+
+	<div id="discordModal" class="modal-overlay">
+		<div class="modal-content">
+			<button class="modal-close" id="modalClose">×</button>
+			<h3 class="modal-title">Join our Discord!</h3>
+			<div class="link-container">
+				<a href="https://discord.gg/8ss7jddrnw" target="_blank"
+					class="discord-link">https://discord.gg/8ss7jddrnw</a>
+				<button class="copy-btn" id="copyBtn" title="Copy to clipboard">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<header class="header">
+			<div class="time-display" id="currentTime"></div>
+		</header>
+
+		<main>
+			<h1 class="page-title">
+				<span id="welcomePrefix">Welcome to </span><span id="typewriter" class="title-text"></span><span id="titleIcon"></span><span id="cursorSpan" class="typewriter-cursor"></span>
+			</h1>
+			<p class="page-subtitle">
+				Discover and play hundreds of fun, free online games — all in one place. With over 7,000 games
+				available, there's always something new to explore. Not into games? No problem — we also offer powerful
+				tools like Tab Cloakers, YouTube Searcher, and much more. Join us on this adventure as we make school a
+				little more fun.
+				<a href="https://forms.gle/g6GjUZYHRLpRway36" target="_blank">Want to suggest games? Click here!</a>
+			</p>
+
+			<section class="search-section" aria-label="Search games and tools">
+				<form id="searchForm" role="search">
+					<div class="search-wrapper">
+						<input
+                        type="text"
+                        class="search-input"
+                        id="searchInput"
+                        placeholder="Search games, tools, or content..."
+                        aria-label="Search for games and tools"
+                        autocomplete="off"
+                    >
+						<button type="submit" class="search-button" aria-label="Submit search">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+					</div>
+				</form>
+				<div class="quick-filters" role="group" aria-label="Quick filter buttons">
+					<button type="button" class="filter-btn" data-search="Games">Games</button>
+					<button type="button" class="filter-btn" data-search="HTML">HTML</button>
+					<button type="button" class="filter-btn" data-search="Network">Network</button>
+					<button type="button" class="filter-btn" data-search="AI">AI</button>
+				</div>
+			</section>
+
+			<div class="divider"></div>
+
+			<section class="games-section">
+				<div class="game-card">
+					<div class="game-header">
+						<div class="game-image-placeholder" style="height: 140px">
+							<img src="https://play-lh.googleusercontent.com/W_dghckKR-MD8Hx5YvCpdx3bYNeqrBdZqnMI02JnP5rVH8VqGaQUzdiMXd2wdJGLeP0" alt="Basket Random" width="210px" height="150px" style="border-radius: 4px; min-width: 200px; min-height: 170px">
+                    </div>
+							<div class="game-info" style="margin-top: 2rem;">
+								<h2 class="game-title">Bacon May Die</h2>
+								<div class="game-rating">⭐⭐⭐⭐⭐</div>
+							</div>
+						</div>
+						<p class="game-description">
+							Bacon May Die is a fast-paced 2D brawler where you play as a fearless pig battling waves of
+							bizarre enemies using flashy
+							melee combos, guns, and slow-motion action. Play solo or with a friend, unlock tons of
+							weapons and outfits, and dive
+							into chaotic, cartoon-style combat that’s easy to pick up and endlessly fun.
+						</p>
+						<div class="game-tags">
+							<span class="game-tag">HTML Games</span>
+							<span class="game-tag">More Games</span>
+						</div>
+					</div>
+
+					<div class="game-card">
+						<div class="game-header">
+							<div class="game-image-placeholder">
+								<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVDJCeFfzhvhhGkf4xJERXF1ePRMOuBKqYPw&s" alt="Gunspin" width="210px" height="150px" style="border-radius: 4px; min-width: 200px;">
+                    </div>
+								<div class="game-info" style="margin-top: 2rem;">
+									<h2 class="game-title">Snow Rider 3D</h2>
+									<div class="game-rating" style="color: var(--gold);">
+										⭐⭐⭐⭐<span style="filter: grayscale(100%) brightness(20%);">⭐</span>
+									</div>
+								</div>
+							</div>
+							<p class="game-description">
+								Snow Rider 3D is a fast-paced endless sledding game where you race down snowy slopes,
+								dodge obstacles, and collect gifts
+								to unlock new sleds. Simple controls, smooth 3D visuals, and increasing speed make every
+								run exciting and perfect for
+								quick play sessions.
+							</p>
+							<div class="game-tags">
+								<span class="game-tag">HTML Games</span>
+								<span class="game-tag">More Games</span>
+							</div>
+						</div>
+			</section>
+
+			<div class="divider"></div>
+
+			<section class="footer-section">
+				<div class="footer-title">
+					<span>Made by:</span>
+					<span class="contributor">
+                    <span>anon</span>
+					<span class="star-icon">★</span>
+					</span>
+					<span>|</span>
+					<span>Other contributors:</span>
+					<span class="contributor">
+                    <span>?, Bredcat, and QWZ</span>
+					<span class="dizzy-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path class="badge-outline" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" stroke="#8b5cf6" stroke-width="1.5" fill="none"/>
+                            <path class="badge-fill" d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z" fill="#8b5cf6" opacity="0.3"/>
+                            <path class="badge-star" d="M9 12l2 2 4-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+					</span>
+				</div>
+				<p class="footer-message">
+					I have a lot of motivation and enthusiasm for this project. I will try my best
+					to keep up with the progress on this website! Trust me, this will be an epic
+					adventure for all of the people in this group, especially since this is risk-free
+					from trouble.
+				</p>
+				<div class="footer-links">
+					<a href="https://sites.google.com/student.allenisd.org/k4x9m2r0p7w8c5dhlj1nq/home/guidelines"
+						class="footer-link" target="_blank">
+						<svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor"
+							viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+							</path>
+						</svg>
+						<span>Guidelines</span>
+					</a>
+					<a href="https://sites.google.com/student.allenisd.org/k4x9m2r0p7w8c5dhlj1nq/home/announcements"
+						class="footer-link">
+						<svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor"
+							viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z">
+							</path>
+						</svg>
+						<span>Announcements</span>
+					</a>
+				</div>
+			</section>
+		</main>
+	</div>
+
+	<script>
+		const canvas = document.getElementById('snow-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+    }
+
+    class Particle {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * -height;
+            this.speed = Math.random() * 1 + 0.5;
+            this.size = Math.random() * 2 + 0.5;
+            this.opacity = Math.random() * 0.5 + 0.1;
+        }
+        update() {
+            this.y += this.speed;
+            if (this.y > height) {
+                this.reset();
+            }
+        }
+        draw() {
+            ctx.fillStyle = `rgba(220, 210, 255, ${this.opacity})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        particles = [];
+        const particleCount = 100;
+        for (let i = 0; i < particleCount; i++) {
+            const p = new Particle();
+            p.y = Math.random() * height; 
+            particles.push(p);
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animateParticles);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    initParticles();
+    animateParticles();
+
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toUTCString();
+        const timeEl = document.getElementById('currentTime');
+        if(timeEl) timeEl.textContent = timeString;
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Updated Typewriter logic for centering ---
+        const typewriterEl = document.getElementById('typewriter');
+        const welcomePrefix = document.getElementById('welcomePrefix');
+        const titleIcon = document.getElementById('titleIcon');
+        const cursorSpan = document.getElementById('cursorSpan');
+        const words = [
+            { text: "Privacy", emoji: " 🔒" },
+            { text: "Comfort", emoji: " 🛋️" },
+            { text: "Gaming", emoji: " 🎮" },
+            { text: "The Game Vault ", emoji: "| 🕹️👾" }
+        ];
+        let wordIdx = 0;
+        let charIdx = 0;
+        let isDeleting = false;
+        let emojiIdx = 0;
+
+        // Pre-split emojis to avoid recalculating
+        const emojiArrays = words.map(w => [...w.emoji]);
+
+        function type() {
+            const currentWordObj = words[wordIdx];
+            const currentWord = currentWordObj.text;
+            const emojiChars = emojiArrays[wordIdx];
+            const isLastWord = wordIdx === words.length - 1;
+
+            if (isDeleting) {
+                if (emojiIdx > 0) {
+                    emojiIdx--;
+                } else if (charIdx > 0) {
+                    charIdx--;
+                }
+            } else {
+                if (charIdx < currentWord.length) {
+                    charIdx++;
+                } else if (emojiIdx < emojiChars.length) {
+                    emojiIdx++;
+                }
+            }
+
+            // Update text content
+            typewriterEl.textContent = currentWord.substring(0, charIdx);
+
+            // Build emoji string
+            titleIcon.textContent = emojiChars.slice(0, emojiIdx).join('');
+
+            // When the final title starts typing,
+            // fade the prefix, shrink its width, and apply gradient style
+            if (isLastWord && !isDeleting && charIdx === 1) {
+              welcomePrefix.style.opacity = '0';
+              welcomePrefix.style.maxWidth = '0';
+              typewriterEl.classList.add('final-title');
+            }
+
+            let delta = isDeleting ? 100 : 180;
+
+            // Check if we're done typing both word and emoji
+            const doneTyping = charIdx === currentWord.length && emojiIdx === emojiChars.length;
+            const doneDeleting = charIdx === 0 && emojiIdx === 0;
+
+            if (!isDeleting && doneTyping) {
+                if (isLastWord) {
+                  cursorSpan.classList.remove('typewriter-cursor');
+                  return;
+                }
+                isDeleting = true;
+                delta = 2500;
+            } else if (isDeleting && doneDeleting) {
+                isDeleting = false;
+                wordIdx++;
+                delta = 600;
+            }
+
+            setTimeout(type, delta);
+        }
+
+        type();
+        // ---------------------------------
+
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        if(searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                if (query) performSearch(query);
+            });
+        }
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const searchTerm = this.getAttribute('data-search');
+                searchInput.value = searchTerm;
+                performSearch(searchTerm);
+            });
+        });
+
+        function performSearch(query) {
+            const searchUrl = `https://sites.google.com/search/student.allenisd.org/k4x9m2r0p7w8c5dhlj1nq/?query=${encodeURIComponent(query)}`;
+            window.open(searchUrl, '_blank');
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+
+        const discordBtn = document.getElementById('discordBtn');
+        const discordModal = document.getElementById('discordModal');
+        const modalClose = document.getElementById('modalClose');
+        const copyBtn = document.getElementById('copyBtn');
+        const discordLink = 'https://discord.gg/8ss7jddrnw';
+
+        function toggleModal(show) {
+            if (show) {
+                discordModal.classList.add('active');
+            } else {
+                discordModal.classList.remove('active');
+            }
+        }
+
+        if(discordBtn) discordBtn.addEventListener('click', () => toggleModal(true));
+        if(modalClose) modalClose.addEventListener('click', () => toggleModal(false));
+        if(discordModal) {
+            discordModal.addEventListener('click', (e) => {
+                if (e.target === discordModal) toggleModal(false);
+            });
+        }
+
+        if(copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(discordLink);
+                    const originalHTML = copyBtn.innerHTML;
+                    copyBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>`;
+                    copyBtn.style.background = '#22c55e';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalHTML;
+                        copyBtn.style.background = '';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            });
+        }
+    });
+	</script>
+</body>
+
+</html>

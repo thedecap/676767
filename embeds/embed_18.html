@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proton Encryptor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --purple-900: #1a0033;
+        --purple-800: #2d0052;
+        --purple-700: #4a0080;
+        --purple-600: #6b21a8;
+        --purple-500: #8b5cf6;
+        --purple-400: #a78bfa;
+        --purple-300: #c4b5fd;
+        --purple-200: #e9d5ff;
+        --purple-100: #f3e8ff;
+        --black: #000000;
+        --white: #ffffff;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--black);
+        color: var(--white);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .background-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+        z-index: 0;
+    }
+
+    .stars {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20px 30px, white, transparent),
+            radial-gradient(2px 2px at 60px 70px, white, transparent),
+            radial-gradient(1px 1px at 50px 50px, white, transparent),
+            radial-gradient(1px 1px at 130px 80px, white, transparent),
+            radial-gradient(2px 2px at 90px 150px, white, transparent);
+        background-repeat: repeat;
+        background-size: 200px 200px;
+        opacity: 0.4;
+        animation: starsMove 100s linear infinite;
+        z-index: 1;
+    }
+
+    @keyframes starsMove {
+        from { transform: translateY(0); }
+        to { transform: translateY(-200px); }
+    }
+
+    /* Purple glow orbs */
+    .orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.1;
+        z-index: 2;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, var(--purple-600), transparent);
+        top: -100px;
+        left: -100px;
+        animation-duration: 25s;
+    }
+
+    .orb-2 {
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, var(--purple-700), transparent);
+        bottom: -100px;
+        right: -100px;
+        animation-duration: 30s;
+        animation-delay: -10s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(50px, -50px) scale(1.1); }
+        66% { transform: translate(-50px, 50px) scale(0.9); }
+    }
+
+    /* Main container */
+    .container {
+        position: relative;
+        z-index: 10;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+        min-height: 100vh;
+        animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .header {
+        text-align: center;
+        padding: 2rem 0;
+    }
+
+    /* Page title */
+    .page-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        text-align: center;
+    }
+
+    .page-title .title-text {
+        background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        font-size: 1.25rem;
+        color: var(--purple-200);
+        margin-bottom: 2rem;
+        font-weight: 400;
+        text-align: center;
+        line-height: 1.7;
+    }
+
+    /* Divider */
+    .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+        margin: 2rem 0;
+        opacity: 0.3;
+    }
+
+    /* Content card */
+    .content-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+        box-shadow: 
+            0 20px 50px rgba(0, 0, 0, 0.5),
+            0 0 100px rgba(139, 92, 246, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    /* Cipher container */
+    .cipher-container {
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+
+    /* Labels */
+    .input-label {
+        display: block;
+        font-size: 1rem;
+        color: var(--purple-200);
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Select dropdown */
+    select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        color: var(--white);
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23a78bfa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 20px;
+        margin-bottom: 1.5rem;
+    }
+
+    select:focus {
+        outline: none;
+        border-color: var(--purple-500);
+        background-color: rgba(0, 0, 0, 0.7);
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+
+    select:hover {
+        border-color: var(--purple-400);
+    }
+
+    select option {
+        background: var(--purple-900);
+        color: var(--white);
+        padding: 10px;
+    }
+
+    /* Textarea */
+    textarea {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        color: var(--white);
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        min-height: 120px;
+        resize: vertical;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+
+    textarea:focus {
+        outline: none;
+        border-color: var(--purple-500);
+        background: rgba(0, 0, 0, 0.7);
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+
+    textarea::placeholder {
+        color: rgba(199, 210, 254, 0.5);
+    }
+
+    textarea[readonly] {
+        background: rgba(0, 0, 0, 0.7);
+        color: var(--purple-200);
+        font-family: 'Courier New', monospace;
+    }
+
+    /* Input fields */
+    input[type="number"],
+    input[type="text"] {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        color: var(--white);
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+        outline: none;
+        border-color: var(--purple-500);
+        background: rgba(0, 0, 0, 0.7);
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+
+    input[type="number"]::placeholder,
+    input[type="text"]::placeholder {
+        color: rgba(199, 210, 254, 0.5);
+    }
+
+    /* Button */
+    button {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+        color: var(--white);
+        border: none;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    /* Extra options container */
+    #extraOptions {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+    #extraOptions.visible {
+        opacity: 1;
+        max-height: 200px;
+        margin-bottom: 1rem;
+    }
+
+    #extraOptions label {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--purple-300);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* Feature badges */
+    .features {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    .feature-badge {
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--purple-200);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .feature-icon {
+        color: var(--purple-400);
+    }
+
+    /* Footer */
+    .footer {
+        text-align: center;
+        padding: 2rem 0;
+        font-size: 0.9rem;
+        color: var(--purple-300);
+    }
+
+    /* Info box */
+    .info-box {
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-left: 4px solid var(--purple-500);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-box-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--white);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--purple-200);
+    }
+
+    /* Row layout for selects */
+    .select-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .select-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .content-card {
+            padding: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+        }
+
+        .cipher-container {
+            padding: 1.5rem;
+        }
+
+        .select-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .features {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.75rem;
+        }
+
+        .content-card {
+            padding: 1.25rem;
+        }
+
+        .cipher-container {
+            padding: 1rem;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- Background elements -->
+<div class="background-gradient"></div>
+<div class="stars"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- Main content -->
+<div class="container">
+    <header class="header">
+        <h1 class="page-title"><span class="title-text">Proton Encryptor</span> ⚛️</h1>
+        <p class="page-subtitle">
+            Encrypt and decrypt text with multiple encoding methods
+        </p>
+    </header>
+
+    <div class="divider"></div>
+
+    <div class="content-card">
+        <div class="features">
+            <div class="feature-badge">
+                <span class="feature-icon">✓</span>
+                12+ Encoding Methods
+            </div>
+            <div class="feature-badge">
+                <span class="feature-icon">✓</span>
+                Instant Processing
+            </div>            <div class="feature-badge">
+                <span class="feature-icon">✓</span>
+                Private & Secure
+            </div>
+        </div>
+
+        <div class="cipher-container">
+            <div class="select-row">
+                <div class="select-group">
+                    <label class="input-label" for="encryptSelect">Encrypt Method</label>
+                    <select id="encryptSelect">
+                        <option value="none">-- None --</option>
+                        <option value="base64">Base64</option>
+                        <option value="hex">Hex</option>
+                        <option value="binary">Binary</option>
+                        <option value="rot13">ROT13</option>
+                        <option value="caesar">Caesar Cipher</option>
+                        <option value="xor">XOR Cipher</option>
+                        <option value="atbash">Atbash Cipher</option>
+                        <option value="url">URL Encode</option>
+                        <option value="html">HTML Entities Encode</option>
+                        <option value="morse">Morse Code</option>
+                        <option value="reverse">Reverse Text</option>
+                        <option value="utf16">UTF-16 Encode</option>
+                    </select>
+                </div>
+
+                <div class="select-group">
+                    <label class="input-label" for="decryptSelect">Decrypt Method</label>
+                    <select id="decryptSelect">
+                        <option value="none">-- None --</option>
+                        <option value="base64">Base64</option>
+                        <option value="hex">Hex</option>
+                        <option value="binary">Binary</option>
+                        <option value="rot13">ROT13</option>
+                        <option value="caesar">Caesar Cipher</option>
+                        <option value="xor">XOR Cipher</option>
+                        <option value="atbash">Atbash Cipher</option>
+                        <option value="url">URL Decode</option>
+                        <option value="html">HTML Entities Decode</option>
+                        <option value="morse">Morse Code</option>
+                        <option value="reverse">Reverse Text</option>
+                        <option value="utf16">UTF-16 Decode</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="extraOptions"></div>
+
+            <label class="input-label" for="inputText">Input</label>
+            <textarea id="inputText" placeholder="Enter text to encode or decode..."></textarea>
+
+            <button id="convertBtn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Convert
+            </button>
+
+            <label class="input-label" for="outputText">Output</label>
+            <textarea id="outputText" readonly placeholder="Your converted text will appear here..."></textarea>
+
+            <div class="info-box">
+                <div class="info-box-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Pro Tip</span>
+                </div>
+                <p class="info-text">
+                    You can chain operations by selecting both an encrypt and decrypt method. The encryption runs first, then decryption is applied to the result.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">Proton Encryptor — encrypt or decrypt text instantly.</div>
+</div>
+
+<script>
+const encryptSelect = document.getElementById('encryptSelect');
+const decryptSelect = document.getElementById('decryptSelect');
+const inputText = document.getElementById('inputText');
+const outputText = document.getElementById('outputText');
+const convertBtn = document.getElementById('convertBtn');
+const extraOptions = document.getElementById('extraOptions');
+
+function showExtraOptions() {
+  const enc = encryptSelect.value;
+  const dec = decryptSelect.value;
+  extraOptions.innerHTML = '';
+  if(enc === 'caesar' || dec === 'caesar') {
+    extraOptions.innerHTML += '<label>Shift (for Caesar)</label><input type="number" id="shiftInput" value="3" placeholder="Enter shift value...">';
+  }
+  if(enc === 'xor' || dec === 'xor') {
+    extraOptions.innerHTML += '<label>Key (for XOR)</label><input type="text" id="keyInput" placeholder="Enter key...">';
+  }
+  if(extraOptions.innerHTML) {
+    extraOptions.classList.add('visible');
+  } else {
+    extraOptions.classList.remove('visible');
+  }
+}
+
+encryptSelect.addEventListener('change', showExtraOptions);
+decryptSelect.addEventListener('change', showExtraOptions);
+
+// Conversion functions
+function base64Encode(t){return btoa(unescape(encodeURIComponent(t)))}
+function base64Decode(t){return decodeURIComponent(escape(atob(t)))}
+function hexEncode(t){return Array.from(t).map(c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join('')}
+function hexDecode(t){return t.match(/.{1,2}/g).map(h=>String.fromCharCode(parseInt(h,16))).join('')}
+function binaryEncode(t){return Array.from(t).map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join(' ')}
+function binaryDecode(t){return t.split(' ').map(b=>String.fromCharCode(parseInt(b,2))).join('')}
+function rot13(t){return t.replace(/[a-zA-Z]/g,c=>String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26))}
+function caesar(t,s){return t.replace(/[a-z]/gi,c=>String.fromCharCode(((c=c.charCodeAt(0))>90?97:65)+((c-(c>90?97:65)+s+26)%26)))}
+function xorCipher(t,k){return Array.from(t).map((c,i)=>String.fromCharCode(c.charCodeAt(0)^k.charCodeAt(i%k.length))).join('')}
+function atbash(t){const a='abcdefghijklmnopqrstuvwxyz';const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ';return t.split('').map(c=>{if(a.includes(c))return a[25-a.indexOf(c)];if(A.includes(c))return A[25-A.indexOf(c)];return c;}).join('')}
+function urlEncode(t){return encodeURIComponent(t)}
+function urlDecode(t){return decodeURIComponent(t)}
+function htmlEncode(t){return t.replace(/./g,c=>`&#${c.charCodeAt(0)};`)}
+function htmlDecode(t){return t.replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(n))}
+const morseMap={'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.'};
+function morseEncode(t){return t.toUpperCase().split('').map(c=>morseMap[c]||'').join(' ')}
+function morseDecode(t){const rev=Object.fromEntries(Object.entries(morseMap).map(([k,v])=>[v,k]));return t.split(' ').map(m=>rev[m]||'').join('')}
+function reverseText(t){return t.split('').reverse().join('')}
+function utf16Encode(t){return Array.from(t).map(c=>c.charCodeAt(0).toString(16).padStart(4,'0')).join(' ')}
+function utf16Decode(t){return t.split(' ').map(h=>String.fromCharCode(parseInt(h,16))).join('')}
+
+convertBtn.addEventListener('click',()=>{
+  let text=inputText.value;
+  const enc=encryptSelect.value;
+  const dec=decryptSelect.value;
+  const shift=document.getElementById('shiftInput')?parseInt(document.getElementById('shiftInput').value):3;
+  const key=document.getElementById('keyInput')?document.getElementById('keyInput').value:'';
+
+  try{
+    if(enc!=='none'){
+      switch(enc){
+        case 'base64': text=base64Encode(text); break;
+        case 'hex': text=hexEncode(text); break;
+        case 'binary': text=binaryEncode(text); break;
+        case 'rot13': text=rot13(text); break;
+        case 'caesar': text=caesar(text,shift); break;
+        case 'xor': text=xorCipher(text,key); break;
+        case 'atbash': text=atbash(text); break;
+        case 'url': text=urlEncode(text); break;
+        case 'html': text=htmlEncode(text); break;
+        case 'morse': text=morseEncode(text); break;
+        case 'reverse': text=reverseText(text); break;
+        case 'utf16': text=utf16Encode(text); break;
+      }
+    }
+    if(dec!=='none'){
+      switch(dec){
+        case 'base64': text=base64Decode(text); break;
+        case 'hex': text=hexDecode(text); break;
+        case 'binary': text=binaryDecode(text); break;
+        case 'rot13': text=rot13(text); break;
+        case 'caesar': text=caesar(text,-shift); break;
+        case 'xor': text=xorCipher(text,key); break;
+        case 'atbash': text=atbash(text); break;
+        case 'url': text=urlDecode(text); break;
+        case 'html': text=htmlDecode(text); break;
+        case 'morse': text=morseDecode(text); break;
+        case 'reverse': text=reverseText(text); break;
+        case 'utf16': text=utf16Decode(text); break;
+      }
+    }
+  }catch(err){alert('Error during conversion: '+err.message)}
+  outputText.value=text;
+});
+</script>
+</body>
+</html>

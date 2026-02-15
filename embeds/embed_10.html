@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumAI - Advanced Math Solver</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Math Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-900: #1a0033;
+            --purple-800: #2d0052;
+            --purple-700: #4a0080;
+            --purple-600: #6b21a8;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-300: #c4b5fd;
+            --purple-200: #e9d5ff;
+            --purple-100: #f3e8ff;
+            --black: #000000;
+            --white: #ffffff;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            position: relative;
+        }
+
+        /* Animated background */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 150px, white, transparent),
+                radial-gradient(1px 1px at 180px 120px, rgba(139, 92, 246, 0.8), transparent),
+                radial-gradient(2px 2px at 250px 200px, white, transparent),
+                radial-gradient(1px 1px at 300px 50px, rgba(167, 139, 250, 0.6), transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.5;
+            animation: starsMove 100s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes starsMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        /* Purple glow orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 2;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--purple-600), transparent);
+            top: -150px;
+            left: -150px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--purple-700), transparent);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--purple-500), transparent);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 35s;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Main container - fullscreen */
+        .container {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 1rem 0;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--purple-400);
+            font-weight: 700;
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Chat container - fills remaining space */
+        .chat-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.4);
+            border-radius: 3px;
+        }
+
+        /* Messages */
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .message.bot .message-avatar {
+            color: var(--purple-400);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .message.bot .message-content {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 1rem 1rem 1rem 4px;
+            color: var(--purple-100);
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            border-radius: 1rem 1rem 4px 1rem;
+            color: var(--white);
+        }
+
+        /* Math result styling */
+        .math-result {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 0.75rem;
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .math-result .label {
+            font-size: 0.75rem;
+            color: #6ee7b7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .math-result .value {
+            font-size: 1.25rem;
+            color: #a7f3d0;
+            font-weight: 600;
+        }
+
+        .math-steps {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .math-steps .step {
+            font-size: 0.85rem;
+            color: var(--purple-300);
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .math-steps .step::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--purple-500);
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: flex;
+            gap: 6px;
+            padding: 0.5rem;
+        }
+
+        .loading .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--purple-500);
+            animation: loadingDot 1.2s ease-in-out infinite;
+        }
+
+        .loading .dot:nth-child(2) { animation-delay: 0.15s; }
+        .loading .dot:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes loadingDot {
+            0%, 80%, 100% { transform: scale(0.5); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Input area */
+        .input-area {
+            padding: 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--white);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--purple-500);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .input-field::placeholder {
+            color: rgba(199, 210, 254, 0.5);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 1rem;
+            border: none;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            color: var(--white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            .header {
+                padding: 0.75rem 0;
+            }
+
+            .logo-text {
+                font-size: 1.5rem;
+            }
+
+            .logo-icon {
+                font-size: 1.5rem;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .input-area {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="background-gradient"></div>
+    <div class="stars"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">∑</span>
+                <span class="logo-text">QuantumAI</span>
+            </div>
+        </header>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be inserted here -->
+            </div>
+
+            <div class="input-area">
+                <input 
+                    type="text" 
+                    class="input-field" 
+                    id="inputField" 
+                    placeholder="Enter any math expression, equation, or word problem..."
+                    autocomplete="off"
+                >
+                <button class="send-btn" id="sendBtn" aria-label="Send">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const inputField = document.getElementById('inputField');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Initial greeting
+        window.addEventListener('load', () => {
+            addBotMessage("Hello! I'm QuantumAI, your advanced math assistant. I can solve equations, perform calculus, simplify expressions, and tackle word problems. Try me with any mathematical challenge!");
+            inputField.focus();
+        });
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">👤</div>
+                <div class="message-content">${escapeHtml(text)}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addBotMessage(text, mathResult = null, steps = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            let content = `<div class="message-avatar">∑</div><div class="message-content">${text}`;
+            
+            if (mathResult !== null) {
+                content += `
+                    <div class="math-result">
+                        <div class="label">Result</div>
+                        <div class="value">${escapeHtml(mathResult)}</div>
+                    </div>
+                `;
+            }
+            
+            if (steps && steps.length > 0) {
+                content += `<div class="math-steps">`;
+                steps.forEach(step => {
+                    content += `<div class="step">${escapeHtml(step)}</div>`;
+                });
+                content += `</div>`;
+            }
+            
+            content += `</div>`;
+            messageDiv.innerHTML = content;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot';
+            loadingDiv.id = 'loadingMessage';
+            loadingDiv.innerHTML = `
+                <div class="message-avatar">∑</div>
+                <div class="message-content">
+                    <div class="loading">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(loadingDiv);
+            scrollToBottom();
+        }
+
+        function hideLoading() {
+            const loadingDiv = document.getElementById('loadingMessage');
+            if (loadingDiv) loadingDiv.remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Main math processing function
+        function solveMath(input) {
+            const original = input;
+            let text = input.trim();
+            let result = { answer: null, explanation: '', steps: [] };
+
+            try {
+                // Preprocess: Replace common symbols
+                text = text
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/²/g, '^2')
+                    .replace(/³/g, '^3')
+                    .replace(/π/g, 'pi')
+                    .replace(/√/g, 'sqrt');
+
+                const lowerText = text.toLowerCase();
+
+                // Check for derivative
+                if (lowerText.includes('derivative') || lowerText.includes('differentiate') || lowerText.match(/^d\/dx/)) {
+                    const expr = text.replace(/derivative\s*(of)?/gi, '').replace(/differentiate/gi, '').replace(/d\/dx/gi, '').trim();
+                    const derivative = nerdamer.diff(expr, 'x').toString();
+                    result.answer = derivative;
+                    result.explanation = `The derivative of ${expr} with respect to x is:`;
+                    result.steps = [
+                        `Input: ${expr}`,
+                        `Applied differentiation rules`,
+                        `Result: ${derivative}`
+                    ];
+                    return result;
+                }
+
+                // Check for integration
+                if (lowerText.includes('integrate') || lowerText.includes('integral') || lowerText.includes('antiderivative')) {
+                    const expr = text.replace(/integrate/gi, '').replace(/integral\s*(of)?/gi, '').replace(/antiderivative\s*(of)?/gi, '').trim();
+                    const integral = nerdamer.integrate(expr, 'x').toString();
+                    result.answer = integral + ' + C';
+                    result.explanation = `The integral of ${expr} with respect to x is:`;
+                    result.steps = [
+                        `Input: ${expr}`,
+                        `Applied integration rules`,
+                        `Result: ${integral} + C`
+                    ];
+                    return result;
+                }
+
+                // Check for simplification
+                if (lowerText.includes('simplify')) {
+                    const expr = text.replace(/simplify/gi, '').trim();
+                    const simplified = nerdamer(expr).toString();
+                    result.answer = simplified;
+                    result.explanation = `Simplified form of ${expr}:`;
+                    result.steps = [
+                        `Input: ${expr}`,
+                        `Simplified: ${simplified}`
+                    ];
+                    return result;
+                }
+
+                // Check for expansion
+                if (lowerText.includes('expand')) {
+                    const expr = text.replace(/expand/gi, '').trim();
+                    const expanded = nerdamer.expand(expr).toString();
+                    result.answer = expanded;
+                    result.explanation = `Expanded form of ${expr}:`;
+                    result.steps = [
+                        `Input: ${expr}`,
+                        `Expanded: ${expanded}`
+                    ];
+                    return result;
+                }
+
+                // Check for factoring
+                if (lowerText.includes('factor')) {
+                    const expr = text.replace(/factor/gi, '').trim();
+                    const factored = nerdamer.factor(expr).toString();
+                    result.answer = factored;
+                    result.explanation = `Factored form of ${expr}:`;
+                    result.steps = [
+                        `Input: ${expr}`,
+                        `Factored: ${factored}`
+                    ];
+                    return result;
+                }
+
+                // Check for equation solving (contains =)
+                if (text.includes('=') && !text.includes('==')) {
+                    // Split equation
+                    const parts = text.split('=');
+                    if (parts.length === 2) {
+                        // Move everything to left side: expr1 - expr2 = 0
+                        const leftSide = parts[0].trim();
+                        const rightSide = parts[1].trim();
+                        
+                        // Detect variable
+                        const varMatch = text.match(/[a-zA-Z]/);
+                        const variable = varMatch ? varMatch[0] : 'x';
+                        
+                        try {
+                            const equation = `${leftSide}-(${rightSide})`;
+                            const solutions = nerdamer.solve(equation, variable);
+                            const solArray = solutions.toString().replace(/[\[\]]/g, '').split(',').filter(s => s.trim());
+                            
+                            if (solArray.length === 0) {
+                                result.answer = 'No solution found';
+                                result.explanation = 'This equation may have no real solutions.';
+                            } else if (solArray.length === 1) {
+                                result.answer = `${variable} = ${solArray[0].trim()}`;
+                                result.explanation = `Solving ${original}:`;
+                                result.steps = [
+                                    `Given equation: ${leftSide} = ${rightSide}`,
+                                    `Rearranged to: ${equation} = 0`,
+                                    `Solution: ${variable} = ${solArray[0].trim()}`
+                                ];
+                            } else {
+                                result.answer = solArray.map(s => `${variable} = ${s.trim()}`).join('  or  ');
+                                result.explanation = `Solving ${original}:`;
+                                result.steps = [
+                                    `Given equation: ${leftSide} = ${rightSide}`,
+                                    `This equation has multiple solutions`,
+                                    ...solArray.map((s, i) => `Solution ${i + 1}: ${variable} = ${s.trim()}`)
+                                ];
+                            }
+                            return result;
+                        } catch (e) {
+                            // Fall through to try other methods
+                        }
+                    }
+                }
+
+                // Check for word problems
+                const wordProblemResult = solveWordProblem(original);
+                if (wordProblemResult) {
+                    return wordProblemResult;
+                }
+
+                // Try direct evaluation with math.js
+                try {
+                    const evaluated = math.evaluate(text);
+                    const formatted = math.format(evaluated, { precision: 14 });
+                    result.answer = formatted;
+                    result.explanation = `Evaluating ${text}:`;
+                    return result;
+                } catch (mathJsError) {
+                    // Try nerdamer for symbolic computation
+                    try {
+                        const nerdResult = nerdamer(text).toString();
+                        result.answer = nerdResult;
+                        result.explanation = `Result:`;
+                        return result;
+                    } catch (nerdError) {
+                        throw new Error('Unable to evaluate expression');
+                    }
+                }
+
+            } catch (error) {
+                result.answer = null;
+                result.explanation = `I couldn't process "${original}". Please check the syntax and try again. You can try expressions like "2x + 5 = 15", "derivative of x^2", or basic calculations.`;
+                return result;
+            }
+        }
+
+        // Enhanced word problem solver
+        function solveWordProblem(text) {
+            const lower = text.toLowerCase();
+            
+            // Check if it looks like a word problem
+            const wordProblemIndicators = ['how many', 'how much', 'what is', 'find', 'calculate', 'if i have', 'total', 'left', 'remaining', 'sum', 'difference', 'product', 'quotient', 'percent', 'percentage', '%'];
+            const isWordProblem = wordProblemIndicators.some(indicator => lower.includes(indicator));
+            
+            if (!isWordProblem) return null;
+
+            const numbers = lower.match(/\d+\.?\d*/g)?.map(Number) || [];
+            const fractions = lower.match(/(\d+)\/(\d+)/g) || [];
+            
+            // Parse fractions
+            fractions.forEach(frac => {
+                const [num, den] = frac.split('/').map(Number);
+                numbers.push(num / den);
+            });
+
+            if (numbers.length === 0) return null;
+
+            let result = { answer: null, explanation: '', steps: [] };
+
+            // Percentage problems
+            if (lower.includes('percent') || lower.includes('%')) {
+                if (lower.includes('of') && numbers.length >= 2) {
+                    const percent = numbers[0];
+                    const total = numbers[1];
+                    const answer = (percent / 100) * total;
+                    result.answer = answer.toString();
+                    result.explanation = `Calculating ${percent}% of ${total}:`;
+                    result.steps = [
+                        `${percent}% = ${percent}/100 = ${percent / 100}`,
+                        `${percent / 100} × ${total} = ${answer}`
+                    ];
+                    return result;
+                }
+            }
+
+            // Fraction of something
+            if ((lower.includes('give away') || lower.includes('take') || lower.includes('remove') || lower.includes('use')) && fractions.length > 0) {
+                const fracMatch = lower.match(/(\d+)\/(\d+)/);
+                if (fracMatch && numbers.length >= 1) {
+                    const total = numbers.find(n => n >= 1 && Number.isInteger(n)) || numbers[0];
+                    const fraction = parseInt(fracMatch[1]) / parseInt(fracMatch[2]);
+                    const remaining = total * (1 - fraction);
+                    result.answer = remaining.toString();
+                    result.explanation = `Starting with ${total} and giving away ${fracMatch[0]}:`;
+                    result.steps = [
+                        `Total: ${total}`,
+                        `Given away: ${total} × ${fracMatch[0]} = ${total * fraction}`,
+                        `Remaining: ${total} - ${total * fraction} = ${remaining}`
+                    ];
+                    return result;
+                }
+            }
+
+            // Determine operation from keywords
+            let operations = [];
+            if (/plus|add|more|total|combined|together|sum|bought|received|gained/.test(lower)) operations.push('add');
+            if (/minus|subtract|less|left|remaining|gave|lost|spent|removed|difference/.test(lower)) operations.push('subtract');
+            if (/times|multiply|each|per|groups?\s+of|product/.test(lower)) operations.push('multiply');
+            if (/divided|split|share|per|quotient|ratio/.test(lower)) operations.push('divide');
+
+            // Default operation if none detected
+            if (operations.length === 0) {
+                if (lower.includes('and')) operations.push('add');
+                else operations.push('add');
+            }
+
+            // Calculate result
+            if (numbers.length >= 2) {
+                let answer = numbers[0];
+                let stepsArr = [`Starting with: ${numbers[0]}`];
+                
+                for (let i = 1; i < numbers.length; i++) {
+                    const op = operations[Math.min(i - 1, operations.length - 1)] || operations[0];
+                    const prevAnswer = answer;
+                    
+                    switch (op) {
+                        case 'add':
+                            answer += numbers[i];
+                            stepsArr.push(`${prevAnswer} + ${numbers[i]} = ${answer}`);
+                            break;
+                        case 'subtract':
+                            answer -= numbers[i];
+                            stepsArr.push(`${prevAnswer} - ${numbers[i]} = ${answer}`);
+                            break;
+                        case 'multiply':
+                            answer *= numbers[i];
+                            stepsArr.push(`${prevAnswer} × ${numbers[i]} = ${answer}`);
+                            break;
+                        case 'divide':
+                            answer /= numbers[i];
+                            stepsArr.push(`${prevAnswer} ÷ ${numbers[i]} = ${answer}`);
+                            break;
+                    }
+                }
+
+                result.answer = answer.toString();
+                result.explanation = 'Solving the word problem:';
+                result.steps = stepsArr;
+                return result;
+            }
+
+            return null;
+        }
+
+        async function processInput() {
+            const text = inputField.value.trim();
+            if (!text) return;
+
+            addUserMessage(text);
+            inputField.value = '';
+            inputField.focus();
+
+            showLoading();
+            
+            // Small delay for better UX
+            await new Promise(r => setTimeout(r, 400));
+            
+            hideLoading();
+
+            const result = solveMath(text);
+            
+            if (result.answer !== null) {
+                addBotMessage(result.explanation, result.answer, result.steps);
+            } else {
+                addBotMessage(result.explanation);
+            }
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', processInput);
+        inputField.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                processInput();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Base64 Encoder</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-900: #1a0033;
+            --purple-800: #2d0052;
+            --purple-700: #4a0080;
+            --purple-600: #6b21a8;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-300: #c4b5fd;
+            --purple-200: #e9d5ff;
+            --purple-100: #f3e8ff;
+            --black: #000000;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 150px, white, transparent);
+            background-size: 200px 200px;
+            opacity: 0.4;
+            animation: starsMove 100s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes starsMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.12;
+            z-index: 2;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, var(--purple-600), transparent);
+            top: -120px;
+            left: -120px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, var(--purple-700), transparent);
+            bottom: -100px;
+            right: -120px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, -40px) scale(1.1); }
+            66% { transform: translate(-40px, 40px) scale(0.9); }
+        }
+
+        /* Main Layout */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card */
+        .card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+
+        .card.dragover {
+            border: 2px dashed var(--purple-400);
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(139, 92, 246, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--white), var(--purple-300));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--purple-200);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Custom File Upload */
+        .file-upload-wrapper {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .upload-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.45);
+        }
+
+        .upload-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .file-name {
+            font-size: 0.95rem;
+            color: var(--purple-200);
+            opacity: 0.85;
+            padding-left: 2px;
+            user-select: none;
+        }
+
+        /* Select dropdown */
+        select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--purple-100);
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23c4b5fd" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--purple-500);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Textarea */
+        textarea {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 1rem;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--purple-100);
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--purple-500);
+        }
+
+        /* Button group */
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.9rem 1rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            border: none;
+            border-radius: 0.75rem;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.35);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-clear:hover:not(:disabled) {
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Messages */
+        .error {
+            margin-top: 0.5rem;
+            color: #ff6b6b;
+            font-size: 0.9rem;
+        }
+
+        .copy-success {
+            text-align: center;
+            margin-top: 1rem;
+            color: #6ee7b7;
+            opacity: 0;
+            transition: 0.4s ease;
+        }
+
+        .copy-success.show {
+            opacity: 1;
+        }
+
+        /* Meta info */
+        .meta-info {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--purple-300);
+            opacity: 0.7;
+        }
+
+        /* Section spacing */
+        .section {
+            margin-top: 1.8rem;
+        }
+
+        /* Link styling */
+        .viewer-link {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .viewer-link p {
+            color: var(--purple-200);
+            font-size: 0.95rem;
+        }
+
+        .viewer-link a {
+            color: var(--purple-400);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .viewer-link a:hover {
+            color: var(--purple-300);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background-gradient"></div>
+    <div class="stars"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="container">
+        <div class="card" id="dropContainer">
+
+            <h1>Image to Base64 Encoder</h1>
+
+            <!-- File Upload -->
+            <label>1. Select an Image (click or drag & drop)</label>
+
+            <div class="file-upload-wrapper">
+                <label class="upload-label">
+                    <span class="upload-button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Choose Image
+                    </span>
+                    <input type="file" id="imageFile" accept="image/*">
+                </label>
+                <span id="fileName" class="file-name">No file selected (PNG/JPG/WEBP/BMP/GIF/ICO/TIF)</span>
+            </div>
+
+            <p id="statusMessage" class="error" style="display:none"></p>
+
+            <!-- Encoding Type -->
+            <div class="section">
+                <label>2. Select Encoding Type</label>
+                <select id="encodeType">
+                    <option value="base64">Base64 (data URL)</option>
+                    <option value="urlbase64">URL-safe Base64</option>
+                    <option value="hex">Hexadecimal (space-free)</option>
+                    <option value="hex-spaced">Hex (spaced pairs)</option>
+                    <option value="octal">Octal</option>
+                    <option value="decimal">Decimal bytes (comma)</option>
+                    <option value="binary">Binary (8-bit)</option>
+                    <option value="percent">Percent encoding (%XX)</option>
+                    <option value="htmlEntity">HTML Entities (&#...;)</option>
+                    <option value="base32">Base32 (RFC4648)</option>
+                    <option value="ascii85">Ascii85 / Base85</option>
+                    <option value="base91">Base91</option>
+                    <option value="rot13">ROT13(Base64)</option>
+                    <option value="custom64">Custom 64-alphabet</option>
+                    <option value="emoji">Emoji mapping</option>
+                    <option value="braille">Braille mapping</option>
+                    <option value="morse">Morse (digit-based)</option>
+                    <option value="utf8map">UTF-Range map</option>
+                    <option value="dna">DNA (A/C/T/G)</option>
+                </select>
+            </div>
+
+            <!-- Output -->
+            <div class="section">
+                <label>3. Encoded Output</label>
+                <textarea id="base64Output" readonly placeholder="Select an image and click Encode..."></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button id="encodeBtn" class="btn" disabled>Encode</button>
+                <button id="copyButton" class="btn" disabled>Copy</button>
+                <button id="downloadBtn" class="btn" disabled>Download</button>
+                <button id="clearBtn" class="btn btn-clear">Clear</button>
+            </div>
+
+            <p id="copyMessage" class="copy-success">Copied successfully!</p>
+
+            <p id="metaInfo" class="meta-info">No file loaded</p>
+
+            <!-- Viewer Link -->
+            <div class="viewer-link">
+                <p>
+                    View your Base64 as an image: 
+                    <a href="https://sites.google.com/student.allenisd.org/lvhowjudmlc7pxo443ru/tools/image-viewer" target="_blank">
+                        Open Image Viewer →
+                    </a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        /* Elements */
+        const fileInput = document.getElementById('imageFile');
+        const fileNameDisplay = document.getElementById('fileName');
+        const dropContainer = document.getElementById('dropContainer');
+        const encodeType = document.getElementById('encodeType');
+        const outputField = document.getElementById('base64Output');
+        const encodeBtn = document.getElementById('encodeBtn');
+        const copyButton = document.getElementById('copyButton');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const copyMessage = document.getElementById('copyMessage');
+        const metaInfo = document.getElementById('metaInfo');
+
+        let currentFile = null;
+        let currentBytes = null;
+        let currentBase64 = null;
+
+        /* File reading helpers */
+        function readAsArrayBuffer(file) {
+            return new Promise((res, rej) => {
+                const fr = new FileReader();
+                fr.onload = () => res(fr.result);
+                fr.onerror = rej;
+                fr.readAsArrayBuffer(file);
+            });
+        }
+
+        function readAsDataURL(file) {
+            return new Promise((res, rej) => {
+                const fr = new FileReader();
+                fr.onload = () => res(fr.result);
+                fr.onerror = rej;
+                fr.readAsDataURL(file);
+            });
+        }
+
+        /* Encoding functions */
+        function bytesToHex(bytes, spaced = false) {
+            if (!bytes) return '';
+            const arr = Array.from(bytes).map(b => b.toString(16).padStart(2, '0'));
+            return spaced ? arr.join(' ') : arr.join('');
+        }
+
+        function bytesToBinary(bytes) {
+            return Array.from(bytes).map(b => b.toString(2).padStart(8, '0')).join(' ');
+        }
+
+        function bytesToOctal(bytes) {
+            return Array.from(bytes).map(b => '\\' + b.toString(8)).join('');
+        }
+
+        function bytesToDecimal(bytes) {
+            return Array.from(bytes).join(',');
+        }
+
+        function bytesToPercent(bytes) {
+            return Array.from(bytes).map(b => '%' + b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function bytesToHTMLEntity(bytes) {
+            return Array.from(bytes).map(b => '&#' + b + ';').join('');
+        }
+
+        /* Base64 helpers */
+        function bytesToBase64(bytes) {
+            let binary = '';
+            const chunk = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunk) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+            }
+            return btoa(binary);
+        }
+
+        function base64ToUrlSafe(b64) {
+            return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        /* Base32 (RFC4648) */
+        const base32Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        function bytesToBase32(bytes) {
+            let result = '';
+            let buffer = 0, bitsLeft = 0;
+            for (let i = 0; i < bytes.length; i++) {
+                buffer = (buffer << 8) | bytes[i];
+                bitsLeft += 8;
+                while (bitsLeft >= 5) {
+                    bitsLeft -= 5;
+                    result += base32Alphabet[(buffer >> bitsLeft) & 0x1F];
+                }
+            }
+            if (bitsLeft > 0) {
+                result += base32Alphabet[(buffer << (5 - bitsLeft)) & 0x1F];
+            }
+            return result;
+        }
+
+        /* Ascii85 / Base85 */
+        function bytesToAscii85(bytes) {
+            let out = '<~';
+            let value = 0, count = 0;
+            for (let i = 0; i < bytes.length; i++) {
+                value = (value << 8) | bytes[i];
+                count++;
+                if (count === 4) {
+                    if (value === 0) out += 'z';
+                    else {
+                        let block = '';
+                        let v = value;
+                        for (let j = 0; j < 5; j++) {
+                            block = String.fromCharCode((v % 85) + 33) + block;
+                            v = Math.floor(v / 85);
+                        }
+                        out += block;
+                    }
+                    value = 0;
+                    count = 0;
+                }
+            }
+            if (count > 0) {
+                value <<= (8 * (4 - count));
+                let block = '';
+                let v = value;
+                for (let j = 0; j < 5; j++) {
+                    block = String.fromCharCode((v % 85) + 33) + block;
+                    v = Math.floor(v / 85);
+                }
+                out += block.slice(0, count + 1);
+            }
+            out += '~>';
+            return out;
+        }
+
+        /* Base91 */
+        const base91Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<=>?@[]^_`{|}~\"";
+        function bytesToBase91(bytes) {
+            let b = 0, n = 0, out = '';
+            for (let i = 0; i < bytes.length; i++) {
+                b |= bytes[i] << n;
+                n += 8;
+                if (n > 13) {
+                    let v = b & 8191;
+                    if (v > 88) {
+                        b >>= 13;
+                        n -= 13;
+                    } else {
+                        v = b & 16383;
+                        b >>= 14;
+                        n -= 14;
+                    }
+                    out += base91Alphabet[v % 91] + base91Alphabet[Math.floor(v / 91)];
+                }
+            }
+            if (n) {
+                out += base91Alphabet[b % 91];
+                if (n > 7) out += base91Alphabet[Math.floor(b / 91)];
+            }
+            return out;
+        }
+
+        /* ROT13 for Base64 */
+        function rot13(str) {
+            return str.replace(/[A-Za-z]/g, c => {
+                return String.fromCharCode(
+                    (c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26
+                );
+            });
+        }
+
+        /* Custom 64 alphabet mapping */
+        const defaultBase64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        const custom64Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#";
+        function mapCustom64(b64) {
+            return b64.split('').map(ch => {
+                const idx = defaultBase64Alphabet.indexOf(ch);
+                return idx >= 0 ? custom64Alphabet[idx] : ch;
+            }).join('');
+        }
+
+        /* Emoji map */
+        const emojiMap = Array.from({ length: 256 }, (_, i) => String.fromCodePoint(0x1F600 + (i % 80)));
+        function bytesToEmoji(bytes) {
+            return Array.from(bytes).map(b => emojiMap[b]).join('');
+        }
+
+        /* Braille mapping */
+        function bytesToBraille(bytes) {
+            return Array.from(bytes).map(b => String.fromCharCode(0x2800 + b)).join('');
+        }
+
+        /* Morse (numeric) */
+        const morseDigits = { 0: "-----", 1: ".----", 2: "..---", 3: "...--", 4: "....-", 5: ".....", 6: "-....", 7: "--...", 8: "---..", 9: "----." };
+        function bytesToMorse(bytes) {
+            return Array.from(bytes).map(b => morseDigits[b % 10]).join(' ');
+        }
+
+        /* UTF-range mapping */
+        function bytesToUTFMap(bytes) {
+            return Array.from(bytes).map(b => String.fromCharCode(0x2500 + b)).join('');
+        }
+
+        /* DNA mapping */
+        function bytesToDNA(bytes) {
+            const map = ['A', 'C', 'T', 'G'];
+            let out = '';
+            for (let b of bytes) {
+                out += map[(b >> 6) & 3];
+                out += map[(b >> 4) & 3];
+                out += map[(b >> 2) & 3];
+                out += map[b & 3];
+            }
+            return out;
+        }
+
+        /* File selection */
+        fileInput.addEventListener('change', async () => {
+            const f = fileInput.files[0];
+            if (!f) return;
+            await loadFile(f);
+        });
+
+        /* Drag & drop */
+        dropContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropContainer.classList.add('dragover');
+        });
+
+        dropContainer.addEventListener('dragleave', e => {
+            dropContainer.classList.remove('dragover');
+        });
+
+        dropContainer.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dropContainer.classList.remove('dragover');
+            const f = e.dataTransfer.files && e.dataTransfer.files[0];
+            if (!f) return;
+            await loadFile(f);
+        });
+
+        /* Load file */
+        async function loadFile(file) {
+            statusMessage.style.display = 'none';
+            copyMessage.classList.remove('show');
+
+            if (file.size > 10 * 1024 * 1024) {
+                statusMessage.textContent = "Error: File exceeds 10MB limit.";
+                statusMessage.style.display = "block";
+                return;
+            }
+
+            currentFile = file;
+            fileNameDisplay.textContent = file.name;
+            metaInfo.textContent = `Loaded: ${file.name} — ${Math.round(file.size / 1024)} KB — ${file.type || 'unknown'}`;
+
+            try {
+                const ab = await readAsArrayBuffer(file);
+                currentBytes = new Uint8Array(ab);
+                currentBase64 = await readAsDataURL(file);
+
+                encodeBtn.disabled = false;
+                outputField.value = '';
+                copyButton.disabled = true;
+                downloadBtn.disabled = true;
+            } catch (err) {
+                statusMessage.textContent = "Error reading file.";
+                statusMessage.style.display = "block";
+            }
+        }
+
+        /* Encode action */
+        encodeBtn.addEventListener('click', () => {
+            if (!currentFile || !currentBytes) {
+                statusMessage.textContent = 'Please select an image first.';
+                statusMessage.style.display = 'block';
+                return;
+            }
+
+            const type = encodeType.value;
+            try {
+                let out = '';
+                switch (type) {
+                    case 'base64': out = currentBase64; break;
+                    case 'urlbase64':
+                        const m = currentBase64.match(/^data:.*;base64,(.*)$/);
+                        out = m ? base64ToUrlSafe(m[1]) : base64ToUrlSafe(bytesToBase64(currentBytes));
+                        break;
+                    case 'hex': out = bytesToHex(currentBytes, false); break;
+                    case 'hex-spaced': out = bytesToHex(currentBytes, true); break;
+                    case 'octal': out = bytesToOctal(currentBytes); break;
+                    case 'decimal': out = bytesToDecimal(currentBytes); break;
+                    case 'binary': out = bytesToBinary(currentBytes); break;
+                    case 'percent': out = bytesToPercent(currentBytes); break;
+                    case 'htmlEntity': out = bytesToHTMLEntity(currentBytes); break;
+                    case 'base32': out = bytesToBase32(currentBytes); break;
+                    case 'ascii85': out = bytesToAscii85(currentBytes); break;
+                    case 'base91': out = bytesToBase91(currentBytes); break;
+                    case 'rot13': out = rot13(bytesToBase64(currentBytes)); break;
+                    case 'custom64': out = mapCustom64(bytesToBase64(currentBytes)); break;
+                    case 'emoji': out = bytesToEmoji(currentBytes); break;
+                    case 'braille': out = bytesToBraille(currentBytes); break;
+                    case 'morse': out = bytesToMorse(currentBytes); break;
+                    case 'utf8map': out = bytesToUTFMap(currentBytes); break;
+                    case 'dna': out = bytesToDNA(currentBytes); break;
+                    default: out = currentBase64;
+                }
+                outputField.value = out;
+                copyButton.disabled = false;
+                downloadBtn.disabled = false;
+            } catch (e) {
+                statusMessage.textContent = 'Encoding error: ' + e.message;
+                statusMessage.style.display = 'block';
+            }
+        });
+
+        /* Copy action */
+        copyButton.addEventListener('click', () => {
+            if (!outputField.value) return;
+            navigator.clipboard.writeText(outputField.value).then(() => {
+                copyMessage.classList.add('show');
+                setTimeout(() => copyMessage.classList.remove('show'), 2000);
+            });
+        });
+
+        /* Download action */
+        downloadBtn.addEventListener('click', () => {
+            if (!outputField.value) return;
+            const blob = new Blob([outputField.value], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = currentFile ? currentFile.name + '.txt' : 'output.txt';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        /* Clear */
+        clearBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            currentFile = null;
+            currentBytes = null;
+            currentBase64 = null;
+            outputField.value = '';
+            fileNameDisplay.textContent = 'No file selected (PNG/JPG/WEBP/BMP/GIF/ICO/TIF)';
+            metaInfo.textContent = 'No file loaded';
+            encodeBtn.disabled = true;
+            copyButton.disabled = true;
+            downloadBtn.disabled = true;
+            statusMessage.style.display = 'none';
+            copyMessage.classList.remove('show');
+        });
+    </script>
+
+</body>
+</html>

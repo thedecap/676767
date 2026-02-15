@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Image Viewer - The Game Vault</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-900: #1a0033;
+            --purple-800: #2d0052;
+            --purple-700: #4a0080;
+            --purple-600: #6b21a8;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-300: #c4b5fd;
+            --purple-200: #e9d5ff;
+            --purple-100: #f3e8ff;
+            --black: #000000;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 150px, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.4;
+            animation: starsMove 100s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes starsMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            z-index: 2;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--purple-600), transparent);
+            top: -100px;
+            left: -100px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--purple-700), transparent);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .time-display {
+            display: inline-block;
+            font-size: 0.875rem;
+            color: var(--purple-300);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .page-title .title-text {
+            background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.25rem;
+            color: var(--purple-200);
+            margin-bottom: 3rem;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+            margin: 2.5rem 0;
+            opacity: 0.3;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .features {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+
+        .feature-badge {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--purple-200);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-icon {
+            color: var(--purple-400);
+        }
+
+        .code-section {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .code-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--purple-200);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            color: var(--purple-100);
+            font-size: 0.9rem;
+            font-family: 'Courier New', Courier, monospace;
+            resize: vertical;
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--purple-500);
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        textarea::placeholder {
+            color: rgba(199, 210, 254, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .info-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-left: 4px solid var(--purple-500);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-box-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--purple-200);
+        }
+
+        .tutorial-text {
+            font-size: 1.0625rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1.5rem;
+        }
+
+        .tutorial-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .tutorial-list li {
+            font-size: 1.0625rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .tutorial-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--purple-400);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        /* Image preview section */
+        .image-preview-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-preview-container.has-image {
+            border-style: solid;
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        .preview-placeholder {
+            color: rgba(199, 210, 254, 0.4);
+            text-align: center;
+        }
+
+        .preview-placeholder svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        #previewImage {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--purple-200);
+            text-align: center;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .success-message.show {
+            display: flex;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(239, 68, 68, 0.1));
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #fca5a5;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Drop zone styling */
+        .drop-zone {
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--purple-400);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .code-section {
+                padding: 1.25rem;
+            }
+
+            textarea {
+                height: 120px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .content-card {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="background-gradient"></div>
+    <div class="stars"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <header class="header">
+            <div class="time-display" id="currentTime"></div>
+        </header>
+
+        <main>
+            <h1 class="page-title"><span class="title-text">Base64 Image Viewer</span> 🖼️</h1>
+            <p class="page-subtitle">
+                Decode and preview Base64 encoded images instantly
+            </p>
+
+            <div class="divider"></div>
+
+            <!-- Main Tool -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">⚡</span>
+                    Image Decoder
+                </h2>
+
+                <div class="features">
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        PNG Support
+                    </div>
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        JPEG Support
+                    </div>
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        GIF Support
+                    </div>
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        WebP Support
+                    </div>
+                    <div class="feature-badge">
+                        <span class="feature-icon">✓</span>
+                        Auto-Detect Format
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <label class="code-label" for="base64Input">📝 Paste Base64 String</label>
+                    <textarea id="base64Input" class="drop-zone" placeholder="Paste your Base64 string here...
+
+Examples:
+• data:image/png;base64,iVBORw0KGgo...
+• iVBORw0KGgoAAAANSUhEUgAAAAUA...
+
+Supports PNG, JPEG, GIF, WebP, SVG, and BMP formats"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="renderImage()">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Render Image
+                    </button>
+                    <button class="btn btn-danger" onclick="clearAll()">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Clear
+                    </button>
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Image rendered successfully!
+                </div>
+
+                <div class="error-message" id="errorMessage">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span id="errorText">Invalid Base64 string</span>
+                </div>
+
+                <!-- Image Preview -->
+                <div class="image-preview-container" id="previewContainer">
+                    <div class="preview-placeholder" id="placeholder">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p>Your image preview will appear here</p>
+                    </div>
+                    <img id="previewImage" style="display: none;" alt="Decoded image">
+                    <div class="image-info" id="imageInfo" style="display: none;"></div>
+                </div>
+
+                <div class="button-group" id="downloadSection" style="display: none;">
+                    <button class="btn btn-success" onclick="downloadImage()">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download Image
+                    </button>
+                </div>
+            </div>
+
+            <!-- How it Works -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">1</span>
+                    How It Works
+                </h2>
+
+                <p class="tutorial-text">
+                    This tool decodes Base64 encoded images and displays them directly in your browser. No data is sent to any server - everything happens locally.
+                </p>
+
+                <ul class="tutorial-list">
+                    <li>
+                        <strong>Paste Base64:</strong> Input your Base64 string with or without the data URI prefix
+                    </li>
+                    <li>
+                        <strong>Auto-Detection:</strong> The tool automatically detects the image format from the data
+                    </li>
+                    <li>
+                        <strong>Instant Preview:</strong> See your decoded image immediately in the preview area
+                    </li>
+                    <li>
+                        <strong>Download Option:</strong> Save the decoded image to your device
+                    </li>
+                </ul>
+
+                <div class="info-box">
+                    <div class="info-box-title">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Supported Formats</span>
+                    </div>
+                    <p class="info-text">
+                        This viewer supports all common image formats including PNG, JPEG, GIF, WebP, SVG, and BMP. The format is automatically detected from the Base64 header or data URI prefix.
+                    </p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Use Cases -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">💡</span>
+                    Use Cases
+                </h2>
+                <p class="tutorial-text">
+                    When might you need to view Base64 images?
+                </p>
+                <ul class="tutorial-list">
+                    <li>Debugging API responses that return Base64 images</li>
+                    <li>Viewing embedded images from HTML/CSS data URIs</li>
+                    <li>Inspecting Base64 data from databases or logs</li>
+                    <li>Converting Base64 strings back to downloadable images</li>
+                    <li>Testing image encoding/decoding workflows</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toUTCString();
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Detect image type from Base64 header
+        function detectImageType(base64) {
+            const signatures = {
+                'iVBORw0KGgo': 'png',
+                '/9j/': 'jpeg',
+                'R0lGOD': 'gif',
+                'UklGR': 'webp',
+                'PHN2Zw': 'svg+xml',
+                'Qk0': 'bmp'
+            };
+
+            for (const [sig, type] of Object.entries(signatures)) {
+                if (base64.startsWith(sig)) {
+                    return type;
+                }
+            }
+            return 'png'; // Default fallback
+        }
+
+        function renderImage() {
+            const input = document.getElementById('base64Input').value.trim();
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const previewImage = document.getElementById('previewImage');
+            const placeholder = document.getElementById('placeholder');
+            const imageInfo = document.getElementById('imageInfo');
+            const downloadSection = document.getElementById('downloadSection');
+            const previewContainer = document.getElementById('previewContainer');
+
+            // Hide messages
+            successMessage.classList.remove('show');
+            errorMessage.classList.remove('show');
+
+            if (!input) {
+                errorText.textContent = 'Please enter a Base64 string';
+                errorMessage.classList.add('show');
+                return;
+            }
+
+            try {
+                let base64Data = input;
+                let mimeType = '';
+
+                // Check if it's a data URI
+                if (input.startsWith('data:')) {
+                    const match = input.match(/^data:([^;]+);base64,(.+)$/);
+                    if (match) {
+                        mimeType = match[1];
+                        base64Data = match[2];
+                    } else {
+                        throw new Error('Invalid data URI format');
+                    }
+                } else {
+                    // Auto-detect image type from Base64 header
+                    const detectedType = detectImageType(input);
+                    mimeType = `image/${detectedType}`;
+                }
+
+                // Validate Base64
+                const validBase64 = /^[A-Za-z0-9+/=]+$/.test(base64Data.replace(/\s/g, ''));
+                if (!validBase64) {
+                    throw new Error('Invalid Base64 characters detected');
+                }
+
+                // Create the data URI
+                const dataUri = `data:${mimeType};base64,${base64Data}`;
+
+                // Test if image loads
+                previewImage.onload = function() {
+                    placeholder.style.display = 'none';
+                    previewImage.style.display = 'block';
+                    previewContainer.classList.add('has-image');
+                    
+                    // Show image info
+                    const sizeKB = (base64Data.length * 0.75 / 1024).toFixed(2);
+                    imageInfo.innerHTML = `
+                        <strong>Format:</strong> ${mimeType.split('/')[1].toUpperCase()}  | 
+                        <strong>Dimensions:</strong> ${this.naturalWidth} × ${this.naturalHeight}px  | 
+                        <strong>Size:</strong> ~${sizeKB} KB
+                    `;
+                    imageInfo.style.display = 'block';
+                    downloadSection.style.display = 'flex';
+
+                    successMessage.classList.add('show');
+                    setTimeout(() => successMessage.classList.remove('show'), 3000);
+                };
+
+                previewImage.onerror = function() {
+                    throw new Error('Failed to decode image - invalid image data');
+                };
+
+                previewImage.src = dataUri;
+
+            } catch (e) {
+                errorText.textContent = e.message || 'Invalid Base64 string';
+                errorMessage.classList.add('show');
+                previewImage.style.display = 'none';
+                placeholder.style.display = 'flex';
+                imageInfo.style.display = 'none';
+                downloadSection.style.display = 'none';
+                previewContainer.classList.remove('has-image');
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('base64Input').value = '';
+            document.getElementById('previewImage').style.display = 'none';
+            document.getElementById('previewImage').src = '';
+            document.getElementById('placeholder').style.display = 'flex';
+            document.getElementById('imageInfo').style.display = 'none';
+            document.getElementById('downloadSection').style.display = 'none';
+            document.getElementById('successMessage').classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('previewContainer').classList.remove('has-image');
+        }
+
+        function downloadImage() {
+            const previewImage = document.getElementById('previewImage');
+            if (!previewImage.src) return;
+
+            const link = document.createElement('a');
+            link.href = previewImage.src;
+            
+            // Extract extension from mime type
+            const mimeMatch = previewImage.src.match(/data:image\/([^;]+)/);
+            const ext = mimeMatch ? mimeMatch[1].replace('+xml', '') : 'png';
+            
+            link.download = `decoded-image.${ext}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Handle paste events
+        document.getElementById('base64Input').addEventListener('paste', function(e) {
+            setTimeout(() => {
+                if (this.value.trim()) {
+                    renderImage();
+                }
+            }, 100);
+        });
+
+        // Handle drag and drop for text
+        const dropZone = document.getElementById('base64Input');
+        
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            this.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            const text = e.dataTransfer.getData('text');
+            if (text) {
+                this.value = text;
+                renderImage();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML File Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML Viewer</h1>
+
+    <textarea id="htmlCode" placeholder="Type or paste your code here..."></textarea>
+    <button id="openWindowButton">Open in New Window</button>
+
+    <script>
+        document.getElementById('openWindowButton').addEventListener('click', function() {
+            var htmlCode = document.getElementById('htmlCode').value;
+            var newWindow = window.open('', '', 'width=800,height=600');
+
+            // Write the HTML code to the new window
+            newWindow.document.open();
+            newWindow.document.write(htmlCode);
+            newWindow.document.close();
+        });
+    </script>
+</body>
+</html>
