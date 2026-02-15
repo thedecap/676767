@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embed</title>
+</head>
+<body>
+<script>
+    launch();
+
+    function launch() {
+      try {
+        fetch("https://cdn.jsdelivr.net/gh/nautilus-os/NautilusOS@latest/NautilusOS-OneFile/index.html?t="+Date.now())
+          .then(response => response.text())
+          .then(html => {
+                document.documentElement.innerHTML = html;
+
+                document.documentElement.querySelectorAll('script').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+          });
+      } catch (error) {
+        console.error('error:', error);
+      }
+    }
+
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5521219086088837"
+     crossorigin="anonymous"></script>
+
+
+
+</body>
+</html>
