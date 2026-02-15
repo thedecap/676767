@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 → HTML Converter</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --purple-900:#1a0033;
+    --purple-700:#4a0080;
+    --purple-600:#6b21a8;
+    --purple-500:#8b5cf6;
+    --purple-300:#c4b5fd;
+    --purple-100:#f3e8ff;
+    --black:#000;
+    --white:#fff;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #000;
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Background */
+.background-gradient {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #000, #0a0015, #000);
+    z-index: 0;
+}
+.stars {
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(1px 1px at 120px 80px, white, transparent);
+    background-size: 200px 200px;
+    opacity: .4;
+    animation: starsMove 120s linear infinite;
+    z-index: 1;
+}
+@keyframes starsMove {
+    to { transform: translateY(-200px); }
+}
+
+/* Layout */
+.container {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+    margin: auto;
+    padding: 2rem;
+}
+
+.header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+}
+
+.page-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+}
+
+.page-subtitle {
+    color: var(--purple-300);
+    margin-top: 1rem;
+    font-size: 1.2rem;
+}
+
+/* Card */
+.card {
+    margin-top: 3rem;
+    background: rgba(255,255,255,.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 20px 50px rgba(0,0,0,.6);
+}
+
+.section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.7rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}
+
+.section-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: .75rem;
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.code-box {
+    margin-top: 1.5rem;
+}
+
+label {
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--purple-300);
+    display: block;
+    margin-bottom: .5rem;
+}
+
+textarea {
+    width: 100%;
+    height: 180px;
+    background: rgba(0,0,0,.6);
+    border: 1px solid rgba(139,92,246,.3);
+    border-radius: .75rem;
+    padding: 1rem;
+    color: var(--purple-100);
+    font-family: monospace;
+    resize: vertical;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 20px rgba(139,92,246,.3);
+}
+
+.buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 1rem 2rem;
+    border-radius: .75rem;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+    color: white;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(139,92,246,.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+}
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(16,185,129,.4);
+}
+
+.success {
+    display: none;
+    margin-top: 1rem;
+    background: rgba(16,185,129,.15);
+    border: 1px solid rgba(16,185,129,.3);
+    color: #6ee7b7;
+    padding: 1rem;
+    border-radius: .75rem;
+}
+
+.success.show {
+    display: block;
+}
+
+@media(max-width:768px){
+    .page-title { font-size: 2rem; }
+}
+</style>
+</head>
+
+<body>
+<div class="background-gradient"></div>
+<div class="stars"></div>
+
+<div class="container">
+    <header class="header">
+        <h1 class="page-title">Base64 → HTML 🔓</h1>
+        <p class="page-subtitle">Decode data:text/html;base64 URLs instantly</p>
+    </header>
+
+    <div class="card">
+        <h2 class="section-title">
+            <span class="section-number">⚡</span>
+            Converter
+        </h2>
+
+        <div class="code-box">
+            <label>📥 Input (data:text/html;base64,...)</label>
+            <textarea id="input" placeholder="data:text/html;base64,PGh0bWw+Li4u"></textarea>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-primary" onclick="convert()">Decode</button>
+        </div>
+
+        <div class="code-box" style="margin-top:2rem;">
+            <label>📤 Decoded HTML</label>
+            <textarea id="output" readonly placeholder="Decoded HTML will appear here..."></textarea>
+
+            <div class="buttons">
+                <button class="btn-success" onclick="copy()">Copy HTML</button>
+            </div>
+
+            <div class="success" id="success">✔ HTML decoded successfully</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function convert() {
+    const input = document.getElementById('input').value.trim();
+    const output = document.getElementById('output');
+    const success = document.getElementById('success');
+
+    try {
+        let data = input;
+        if (data.startsWith("data:")) {
+            data = data.substring(data.indexOf(",") + 1);
+        }
+        output.value = atob(data);
+        success.classList.add("show");
+        setTimeout(() => success.classList.remove("show"), 2500);
+    } catch (e) {
+        alert("Invalid Base64 input");
+    }
+}
+
+function copy() {
+    const out = document.getElementById('output');
+    if (!out.value) return alert("Nothing to copy");
+    out.select();
+    document.execCommand("copy");
+    alert("Copied!");
+}
+</script>
+</body>
+</html>

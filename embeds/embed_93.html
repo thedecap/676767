@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromebook Keyboard Shortcuts - The Game Vault</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-900: #1a0033;
+            --purple-800: #2d0052;
+            --purple-700: #4a0080;
+            --purple-600: #6b21a8;
+            --purple-500: #8b5cf6;
+            --purple-400: #a78bfa;
+            --purple-300: #c4b5fd;
+            --purple-200: #e9d5ff;
+            --purple-100: #f3e8ff;
+            --black: #000000;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0015 50%, #000000 100%);
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 60px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 130px 80px, white, transparent),
+                radial-gradient(2px 2px at 90px 150px, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.4;
+            animation: starsMove 100s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes starsMove {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+        /* Purple glow orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            z-index: 2;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--purple-600), transparent);
+            top: -100px;
+            left: -100px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--purple-700), transparent);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .time-display {
+            display: inline-block;
+            font-size: 0.875rem;
+            color: var(--purple-300);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Page title */
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .page-title .title-text {
+            background: linear-gradient(135deg, var(--white) 0%, var(--purple-300) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.25rem;
+            color: var(--purple-200);
+            margin-bottom: 3rem;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--purple-500), transparent);
+            margin: 2.5rem 0;
+            opacity: 0.3;
+        }
+
+        /* Content card */
+        .content-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .tutorial-text {
+            font-size: 1.0625rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1.5rem;
+        }
+
+        .tutorial-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .tutorial-list li {
+            font-size: 1.0625rem;
+            line-height: 1.8;
+            color: var(--purple-100);
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .tutorial-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--purple-400);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        /* Keyboard key styling */
+        .key {
+            display: inline-block;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0.15) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            border-radius: 0.5rem;
+            padding: 0.25rem 0.6rem;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--purple-100);
+            box-shadow: 
+                0 2px 0 rgba(139, 92, 246, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            margin: 0 0.15rem;
+            white-space: nowrap;
+        }
+
+        .key-combo {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .key-plus {
+            color: var(--purple-400);
+            font-weight: 600;
+        }
+
+        /* Shortcut table */
+        .shortcut-table {
+            width: 100%;
+            margin: 1.5rem 0;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .shortcut-table tr {
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 0.75rem;
+        }
+
+        .shortcut-table td {
+            padding: 1rem 1.25rem;
+            vertical-align: middle;
+        }
+
+        .shortcut-table td:first-child {
+            border-radius: 0.75rem 0 0 0.75rem;
+            width: 45%;
+        }
+
+        .shortcut-table td:last-child {
+            border-radius: 0 0.75rem 0.75rem 0;
+            color: var(--purple-200);
+            font-size: 0.95rem;
+        }
+
+        /* Warning box */
+        .warning-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-left: 4px solid var(--purple-500);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .warning-box-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .warning-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: var(--purple-400);
+        }
+
+        .warning-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--purple-200);
+        }
+
+        /* Info box (blue variant) */
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-left: 4px solid #3b82f6;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-box .warning-box-title {
+            color: #93c5fd;
+        }
+
+        .info-box .warning-text {
+            color: #bfdbfe;
+        }
+
+        .info-box .warning-icon {
+            color: #60a5fa;
+        }
+
+        /* Tip box (green variant) */
+        .tip-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-left: 4px solid #10b981;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .tip-box .warning-box-title {
+            color: #6ee7b7;
+        }
+
+        .tip-box .warning-text {
+            color: #a7f3d0;
+        }
+
+        .tip-box .warning-icon {
+            color: #34d399;
+        }
+
+        /* Back button */
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple-200);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateX(-3px);
+        }
+
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        /* Key legend */
+        .key-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .key-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(139, 92, 246, 0.08);
+            border-radius: 0.75rem;
+        }
+
+        .key-legend-item .key {
+            min-width: 100px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .key-legend-item .key-desc {
+            color: var(--purple-200);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .tutorial-text,
+            .tutorial-list li {
+                font-size: 1rem;
+            }
+
+            .shortcut-table td:first-child {
+                width: 50%;
+            }
+
+            .key {
+                font-size: 0.8rem;
+                padding: 0.2rem 0.5rem;
+            }
+
+            .key-legend-item .key {
+                min-width: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .content-card {
+                padding: 1.25rem;
+            }
+
+            .shortcut-table td {
+                padding: 0.75rem;
+                display: block;
+            }
+
+            .shortcut-table td:first-child {
+                border-radius: 0.75rem 0.75rem 0 0;
+                width: 100%;
+            }
+
+            .shortcut-table td:last-child {
+                border-radius: 0 0 0.75rem 0.75rem;
+                padding-top: 0;
+            }
+
+            .key-legend {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="background-gradient"></div>
+    <div class="stars"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Main content -->
+    <div class="container">
+        <header class="header">
+            <div class="time-display" id="currentTime"></div>
+        </header>
+
+        <main>
+            <h1 class="page-title"><span class="title-text">Keyboard Shortcuts</span> ⌨️</h1>
+            <p class="page-subtitle">
+                Master your Chromebook like a pro with these essential keyboard shortcuts
+            </p>
+
+            <div class="divider"></div>
+
+            <!-- Understanding Chromebook Keys -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">🔑</span>
+                    Understanding Chromebook Keys
+                </h2>
+
+                <p class="tutorial-text">
+                    Chromebook keyboards are a bit different from regular Windows or Mac keyboards. Here are the special keys you need to know:
+                </p>
+
+                <div class="key-legend">
+                    <div class="key-legend-item">
+                        <span class="key">🔍 Search</span>
+                        <span class="key-desc">Also called Launcher or Everything key (where Caps Lock usually is)</span>
+                    </div>
+                    <div class="key-legend-item">
+                        <span class="key">◀ Back</span>
+                        <span class="key-desc">Go to previous page (F1 position)</span>
+                    </div>
+                    <div class="key-legend-item">
+                        <span class="key">↻ Refresh</span>
+                        <span class="key-desc">Reload the page (F2/F3 position)</span>
+                    </div>
+                    <div class="key-legend-item">
+                        <span class="key">⛶ Fullscreen</span>
+                        <span class="key-desc">Toggle fullscreen mode (F4 position)</span>
+                    </div>
+                    <div class="key-legend-item">
+                        <span class="key">⧉ Overview</span>
+                        <span class="key-desc">Show all windows (F5 position)</span>
+                    </div>
+                    <div class="key-legend-item">
+                        <span class="key">🔅 🔆</span>
+                        <span class="key-desc">Brightness down / Brightness up</span>
+                    </div>
+                    <div class="key-legend-item">
+                        <span class="key">🔇 🔉 🔊</span>
+                        <span class="key-desc">Mute / Volume down / Volume up</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="warning-box-title">
+                        <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>No Caps Lock?</span>
+                    </div>
+                    <p class="warning-text">
+                        Chromebooks don't have a Caps Lock key by default. To turn on Caps Lock, press <span class="key">Search</span> <span class="key-plus">+</span> <span class="key">Alt</span>. Press it again to turn it off!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Essential Shortcuts -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">1</span>
+                    Essential Shortcuts (Must Know!)
+                </h2>
+
+                <p class="tutorial-text">
+                    These are the basics that everyone should memorize. They work almost everywhere!
+                </p>
+
+                <table class="shortcut-table">
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">C</span></td>
+                        <td>Copy selected text or item</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">V</span></td>
+                        <td>Paste what you copied</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">X</span></td>
+                        <td>Cut selected text or item</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Z</span></td>
+                        <td>Undo your last action</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">Z</span></td>
+                        <td>Redo (undo the undo)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">A</span></td>
+                        <td>Select all text or items</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">F</span></td>
+                        <td>Find text on the page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">P</span></td>
+                        <td>Print the current page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">S</span></td>
+                        <td>Save the current page/document</td>
+                    </tr>
+                </table>
+
+                <div class="tip-box">
+                    <div class="warning-box-title">
+                        <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <span>Pro Tip: Paste Without Formatting</span>
+                    </div>
+                    <p class="warning-text">
+                        Use <span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">V</span> to paste text without any weird formatting from websites!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tab & Window Management -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">2</span>
+                    Tab & Window Shortcuts
+                </h2>
+
+                <p class="tutorial-text">
+                    Control your browser tabs and windows like a boss. These are super useful for multitasking!
+                </p>
+
+                <table class="shortcut-table">
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">T</span></td>
+                        <td>Open a new tab</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">W</span></td>
+                        <td>Close the current tab</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">T</span></td>
+                        <td>Reopen the last closed tab (lifesaver!)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">N</span></td>
+                        <td>Open a new window</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">N</span></td>
+                        <td>Open new incognito window 🕵️</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Tab</span></td>
+                        <td>Switch to next tab</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">Tab</span></td>
+                        <td>Switch to previous tab</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">1-8</span></td>
+                        <td>Jump to specific tab (1st, 2nd, 3rd...)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">9</span></td>
+                        <td>Jump to the last tab</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">Tab</span></td>
+                        <td>Switch between open windows/apps</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">[</span></td>
+                        <td>Dock window to the left side</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">]</span></td>
+                        <td>Dock window to the right side</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">-</span></td>
+                        <td>Minimize current window</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">=</span></td>
+                        <td>Maximize current window</td>
+                    </tr>
+                </table>
+
+                <div class="warning-box">
+                    <div class="warning-box-title">
+                        <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <span>Quick Hide!</span>
+                    </div>
+                    <p class="warning-text">
+                        Need to quickly hide what you're doing? Press <span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">-</span> to minimize or <span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">W</span> to close the tab fast! 👀
+                    </p>
+                </div>
+            </div>
+
+            <!-- Screenshot Shortcuts -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">3</span>
+                    Screenshot Shortcuts 📸
+                </h2>
+
+                <p class="tutorial-text">
+                    Capture your screen easily! Screenshots are saved to your Downloads folder.
+                </p>
+
+                <table class="shortcut-table">
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">⧉ Overview</span></td>
+                        <td>Take a screenshot of the entire screen</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">⧉ Overview</span></td>
+                        <td>Take a partial screenshot (select area)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">⧉ Overview</span></td>
+                        <td>Take a screenshot of a window</td>
+                    </tr>
+                </table>
+
+                <div class="tip-box">
+                    <div class="warning-box-title">
+                        <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        <span>Screen Recording</span>
+                    </div>
+                    <p class="warning-text">
+                        Press <span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">⧉ Overview</span> and select the screen record option from the toolbar to record your screen!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation & Browsing -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">4</span>
+                    Navigation & Browsing
+                </h2>
+
+                <p class="tutorial-text">
+                    Navigate websites and pages faster without touching your trackpad!
+                </p>
+
+                <table class="shortcut-table">
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">◀</span></td>
+                        <td>Go back to previous page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">▶</span></td>
+                        <td>Go forward to next page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">↻</span></td>
+                        <td>Refresh the page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">↻</span></td>
+                        <td>Hard refresh (clear cache)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Space</span></td>
+                        <td>Scroll down the page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">Space</span></td>
+                        <td>Scroll up the page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">+</span></td>
+                        <td>Zoom in</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">-</span></td>
+                        <td>Zoom out</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">0</span></td>
+                        <td>Reset zoom to default</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">L</span></td>
+                        <td>Select the URL/address bar</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">D</span></td>
+                        <td>Bookmark current page</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">H</span></td>
+                        <td>Open browsing history</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">J</span></td>
+                        <td>Open downloads page</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Text Editing -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">5</span>
+                    Text Editing Shortcuts
+                </h2>
+
+                <p class="tutorial-text">
+                    Edit text like a pro! These work in Google Docs, text fields, and most apps.
+                </p>
+
+                <table class="shortcut-table">
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">B</span></td>
+                        <td>Bold text</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">I</span></td>
+                        <td>Italic text</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">U</span></td>
+                        <td>Underline text</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">X</span></td>
+                        <td>Strikethrough text</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">←</span></td>
+                        <td>Move cursor one word left</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">→</span></td>
+                        <td>Move cursor one word right</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Backspace</span></td>
+                        <td>Delete entire word before cursor</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">Backspace</span></td>
+                        <td>Delete (forward delete)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Search</span> <span class="key-plus">+</span> <span class="key">←</span></td>
+                        <td>Move cursor to beginning of line</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Search</span> <span class="key-plus">+</span> <span class="key">→</span></td>
+                        <td>Move cursor to end of line</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">←/→</span></td>
+                        <td>Select word by word</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">↑/↓</span></td>
+                        <td>Select line by line</td>
+                    </tr>
+                </table>
+
+                <div class="info-box">
+                    <div class="warning-box-title">
+                        <svg class="warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Missing Home/End/Delete Keys?</span>
+                    </div>
+                    <p class="warning-text">
+                        Chromebooks don't have Home, End, Page Up, Page Down, or Delete keys. Use these instead:<br><br>
+                        • <strong>Home:</strong> <span class="key">Search</span> <span class="key-plus">+</span> <span class="key">←</span><br>
+                        • <strong>End:</strong> <span class="key">Search</span> <span class="key-plus">+</span> <span class="key">→</span><br>
+                        • <strong>Page Up:</strong> <span class="key">Search</span> <span class="key-plus">+</span> <span class="key">↑</span><br>
+                        • <strong>Page Down:</strong> <span class="key">Search</span> <span class="key-plus">+</span> <span class="key">↓</span><br>
+                        • <strong>Delete:</strong> <span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">Backspace</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- System Shortcuts -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">6</span>
+                    System & Power Shortcuts
+                </h2>
+
+                <p class="tutorial-text">
+                    Control your Chromebook's system settings and features.
+                </p>
+
+                <table class="shortcut-table">
+                    <tr>
+                        <td><span class="key">Search</span></td>
+                        <td>Open the app launcher/search</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Search</span> <span class="key-plus">+</span> <span class="key">L</span></td>
+                        <td>Lock your screen</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">Q</span> (twice)</td>
+                        <td>Sign out of your Chromebook</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">S</span></td>
+                        <td>Open status area (time/settings)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">M</span></td>
+                        <td>Open Files app</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">E</span></td>
+                        <td>Open Chrome menu (⋮)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">/</span></td>
+                        <td>View all keyboard shortcuts</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Search</span> <span class="key-plus">+</span> <span class="key">Esc</span></td>
+                        <td>Open Task Manager</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">+</span></td>
+                        <td>Increase screen resolution/zoom</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">-</span></td>
+                        <td>Decrease screen resolution/zoom</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Bonus: Google Docs -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">⭐</span>
+                    Bonus: Google Docs Shortcuts
+                </h2>
+
+                <p class="tutorial-text">
+                    Extra shortcuts specifically for Google Docs and Google Drive!
+                </p>
+
+                <table class="shortcut-table">
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">C</span></td>
+                        <td>Copy formatting</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">V</span></td>
+                        <td>Paste formatting</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">\</span></td>
+                        <td>Clear formatting</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">K</span></td>
+                        <td>Insert a link</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Alt</span> <span class="key-plus">+</span> <span class="key">M</span></td>
+                        <td>Insert a comment</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">7</span></td>
+                        <td>Create numbered list</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">Ctrl</span> <span class="key-plus">+</span> <span class="key">Shift</span> <span class="key-plus">+</span> <span class="key">8</span></td>
+                        <td>Create bullet list</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Help Section -->
+            <div class="content-card">
+                <h2 class="section-title">
+                    <span class="section-number">💡</span>
+                    Quick Reference
+                </h2>
+                <p class="tutorial-text">
+                    <strong>Remember:</strong> The more you use these shortcuts, the faster they'll become second nature. Start with the essentials (copy, paste, undo) and gradually add more to your toolkit!
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toUTCString();
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

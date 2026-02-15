@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Zenith Video</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--accent: #9b59b6;
+			--accent-dim: #8e44ad;
+			--glass: rgba(255, 255, 255, 0.06);
+			--glass-heavy: rgba(0, 0, 0, 0.6);
+			--glass-border: rgba(255, 255, 255, 0.1);
+			--text-main: #ffffff;
+			--text-dim: #a0a0a0;
+		}
+
+		* {
+			box-sizing: border-box;
+			-webkit-font-smoothing: antialiased;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Inter', sans-serif;
+			background: #000;
+			color: var(--text-main);
+			display: flex;
+			height: 100vh;
+			overflow: hidden;
+		}
+
+		::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: var(--glass-border);
+			border-radius: 10px;
+		}
+
+		#bg-blur {
+			position: fixed;
+			inset: -50px;
+			z-index: -1;
+			background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 50%, #1a0a1a 100%);
+			background-size: cover;
+			background-position: center;
+			filter: blur(60px) brightness(0.4);
+			transition: background-image 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+			transform: scale(1.1);
+		}
+
+		#bg-overlay {
+			position: fixed;
+			inset: 0;
+			z-index: -1;
+			background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+		}
+
+		/* Sidebar */
+		#sidebar {
+			width: 380px;
+			background: var(--glass-heavy);
+			backdrop-filter: blur(40px);
+			-webkit-backdrop-filter: blur(40px);
+			border-right: 1px solid var(--glass-border);
+			display: flex;
+			flex-direction: column;
+			z-index: 10;
+		}
+
+		.sidebar-header {
+			padding: 30px 25px 20px;
+			border-bottom: 1px solid var(--glass-border);
+		}
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 25px;
+		}
+
+		.logo-icon {
+			width: 42px;
+			height: 42px;
+			background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.4rem;
+		}
+
+		.logo h1 {
+			font-size: 1.5rem;
+			font-weight: 800;
+			letter-spacing: -1px;
+		}
+
+		.logo span {
+			color: var(--accent);
+		}
+
+		.search-container {
+			position: relative;
+		}
+
+		.search-bar {
+			width: 100%;
+			background: var(--glass);
+			border: 1px solid var(--glass-border);
+			padding: 14px 20px 14px 48px;
+			border-radius: 50px;
+			color: white;
+			font-size: 0.95rem;
+			outline: none;
+			transition: all 0.3s ease;
+		}
+
+		.search-bar:focus {
+			border-color: var(--accent);
+		}
+
+		.search-bar::placeholder {
+			color: var(--text-dim);
+		}
+
+		.search-icon {
+			position: absolute;
+			left: 18px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: var(--text-dim);
+			font-size: 1.1rem;
+		}
+
+		/* Queue section */
+		.queue-header {
+			padding: 20px 25px 15px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.queue-header h2 {
+			font-size: 0.85rem;
+			font-weight: 600;
+			color: var(--text-dim);
+			text-transform: uppercase;
+			letter-spacing: 1.5px;
+		}
+
+		.clear-btn {
+			background: none;
+			border: none;
+			color: var(--text-dim);
+			font-size: 0.8rem;
+			cursor: pointer;
+			transition: color 0.2s;
+		}
+
+		.clear-btn:hover {
+			color: var(--accent);
+		}
+
+		#queue-list {
+			flex: 1;
+			overflow-y: auto;
+			padding: 0 15px 20px;
+		}
+
+		.q-row {
+			display: flex;
+			align-items: center;
+			padding: 12px;
+			border-radius: 14px;
+			margin-bottom: 6px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			border: 1px solid transparent;
+			position: relative;
+		}
+
+		.q-row:hover {
+			background: var(--glass);
+		}
+
+		.q-row.active {
+			background: rgba(155, 89, 182, 0.1);
+			border-color: var(--accent);
+		}
+
+		.q-row .thumb {
+			width: 70px;
+			height: 40px;
+			border-radius: 8px;
+			margin-right: 14px;
+			object-fit: cover;
+			flex-shrink: 0;
+			background: var(--glass);
+		}
+
+		.q-row .info {
+			flex: 1;
+			overflow: hidden;
+		}
+
+		.q-row .title {
+			font-weight: 600;
+			font-size: 0.9rem;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			margin-bottom: 3px;
+		}
+
+		.q-row .channel {
+			font-size: 0.75rem;
+			color: var(--text-dim);
+		}
+
+		.q-row .remove-btn {
+			background: none;
+			border: none;
+			color: var(--text-dim);
+			font-size: 1.1rem;
+			cursor: pointer;
+			opacity: 0;
+			transition: all 0.2s;
+			padding: 8px;
+		}
+
+		.q-row:hover .remove-btn {
+			opacity: 1;
+		}
+
+		.q-row .remove-btn:hover {
+			color: #ff4d4d;
+		}
+
+		/* Main content */
+		main {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			overflow: hidden;
+		}
+
+		/* Tabs */
+		.tabs-bar {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 20px 30px;
+			background: rgba(0, 0, 0, 0.3);
+			border-bottom: 1px solid var(--glass-border);
+			overflow-x: auto;
+		}
+
+		.tab {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 16px;
+			background: var(--glass);
+			border: 1px solid var(--glass-border);
+			border-radius: 10px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			min-width: 160px;
+			max-width: 220px;
+		}
+
+		.tab:hover {
+			background: rgba(255, 255, 255, 0.08);
+		}
+
+		.tab.active {
+			background: rgba(155, 89, 182, 0.15);
+			border-color: var(--accent);
+		}
+
+		.tab-icon {
+			font-size: 1rem;
+		}
+
+		.tab-title {
+			flex: 1;
+			font-size: 0.85rem;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-weight: 500;
+		}
+
+		.tab-close {
+			width: 22px;
+			height: 22px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			font-size: 1rem;
+			transition: all 0.2s ease;
+			color: var(--text-dim);
+		}
+
+		.tab-close:hover {
+			background: rgba(255, 77, 77, 0.2);
+			color: #ff4d4d;
+		}
+
+		.new-tab-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			padding: 10px 16px;
+			background: rgba(155, 89, 182, 0.15);
+			border: 1px solid var(--accent);
+			border-radius: 10px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			min-width: 50px;
+			color: var(--text-main);
+			font-weight: 500;
+			font-size: 1.2rem;
+		}
+
+		.new-tab-btn:hover {
+			background: rgba(155, 89, 182, 0.25);
+		}
+
+		/* Content area */
+		.content-area {
+			flex: 1;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.tab-content {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: none;
+			overflow-y: auto;
+		}
+
+		.tab-content.active {
+			display: block;
+		}
+
+		.tab-content iframe {
+			width: 100%;
+			height: 100%;
+			border: none;
+		}
+
+		/* Empty state */
+		.empty-state {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100%;
+			text-align: center;
+			padding: 40px;
+		}
+
+		.empty-icon {
+			width: 120px;
+			height: 120px;
+			background: var(--glass);
+			border: 1px solid var(--glass-border);
+			border-radius: 30px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 3.5rem;
+			margin-bottom: 30px;
+		}
+
+		.empty-state h2 {
+			font-size: 2rem;
+			font-weight: 800;
+			margin-bottom: 12px;
+			letter-spacing: -1px;
+		}
+
+		.empty-state p {
+			color: var(--text-dim);
+			font-size: 1.1rem;
+			max-width: 400px;
+		}
+
+		/* Search results */
+		.search-results {
+			padding: 30px;
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+			gap: 20px;
+		}
+
+		.video-card {
+			background: var(--glass);
+			border: 1px solid var(--glass-border);
+			border-radius: 18px;
+			overflow: hidden;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.video-card:hover {
+			transform: translateY(-4px);
+			border-color: var(--accent);
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(155, 89, 182, 0.1);
+		}
+
+		.video-card .thumbnail {
+			width: 100%;
+			aspect-ratio: 16 / 9;
+			object-fit: cover;
+			background: linear-gradient(135deg, #1a1a1a, #000);
+		}
+
+		.video-card .card-info {
+			padding: 18px;
+		}
+
+		.video-card .card-title {
+			font-weight: 700;
+			font-size: 1rem;
+			margin-bottom: 8px;
+			line-height: 1.4;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+
+		.video-card .card-channel {
+			color: var(--text-dim);
+			font-size: 0.85rem;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.video-card .card-channel::before {
+			content: '';
+			width: 6px;
+			height: 6px;
+			background: var(--accent);
+			border-radius: 50%;
+		}
+
+		/* Loading */
+		.loading-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100%;
+			gap: 20px;
+		}
+
+		.loading-spinner {
+			width: 50px;
+			height: 50px;
+			border: 3px solid var(--glass-border);
+			border-top-color: var(--accent);
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		.loading-text {
+			color: var(--text-dim);
+			font-size: 0.95rem;
+		}
+
+		/* Toast */
+		#toast {
+			position: fixed;
+			top: 30px;
+			left: 50%;
+			transform: translateX(-50%) translateY(-100px);
+			background: var(--accent);
+			color: black;
+			padding: 14px 35px;
+			border-radius: 50px;
+			font-weight: 700;
+			z-index: 1000;
+			transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			box-shadow: 0 10px 40px rgba(155, 89, 182, 0.4);
+		}
+
+		#toast.show {
+			transform: translateX(-50%) translateY(0);
+		}
+
+		/* Player controls overlay */
+		.video-wrapper {
+			position: relative;
+			width: 100%;
+			height: 100%;
+		}
+
+		.video-info-bar {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			padding: 30px;
+			background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+			display: flex;
+			align-items: center;
+			gap: 20px;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.video-wrapper:hover .video-info-bar {
+			opacity: 1;
+		}
+
+		.video-info-bar .now-playing {
+			flex: 1;
+		}
+
+		.video-info-bar h3 {
+			font-size: 1.2rem;
+			font-weight: 700;
+			margin-bottom: 5px;
+		}
+
+		.video-info-bar p {
+			color: var(--text-dim);
+			font-size: 0.9rem;
+		}
+
+		.action-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			padding: 6px 10px;
+			background: rgba(155, 89, 182, 0.15);
+			border: 1px solid var(--accent);
+			border-radius: 10px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			min-width: 50px;
+			color: var(--text-main);
+			font-weight: 700;
+			font-size: 1.2rem;
+		}
+
+		.action-btn:hover {
+			transform: translateY(-2px);
+		}
+
+		.btn-glass {
+			background: var(--glass);
+			border: 1px solid var(--glass-border);
+			color: white;
+			padding: 12px 24px;
+			border-radius: 50px;
+			cursor: pointer;
+			backdrop-filter: blur(10px);
+			font-weight: 600;
+			transition: all 0.3s ease;
+		}
+
+		.btn-glass:hover {
+			background: rgba(255, 255, 255, 0.1);
+			border-color: var(--accent);
+		}
+
+		/* Responsive */
+		@media (max-width: 900px) {
+			#sidebar {
+				width: 320px;
+			}
+		}
+
+		@media (max-width: 700px) {
+			body {
+				flex-direction: column;
+			}
+
+			#sidebar {
+				width: 100%;
+				height: auto;
+				max-height: 50vh;
+			}
+
+			.search-results {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div id="bg-blur"></div>
+	<div id="bg-overlay"></div>
+	<div id="toast">Loading...</div>
+
+	<aside id="sidebar">
+		<div class="sidebar-header">
+			<div class="logo">
+				<div class="logo-icon">▶</div>
+				<h1>YouTube <span>Searcher</span></h1>
+			</div>
+			<div class="search-container">
+				<span class="search-icon">🔍</span>
+				<input type="text" class="search-bar" id="searchInput" placeholder="Search videos or paste URL...">
+			</div>
+			</div>
+
+			<div class="queue-header">
+				<h2>Watch Queue</h2>
+				<button class="clear-btn" onclick="clearQueue()">Clear All</button>
+			</div>
+
+			<div id="queue-list">
+				<!-- Queue items go here -->
+			</div>
+	</aside>
+
+	<main>
+		<div class="tabs-bar" id="tabsBar">
+			<!-- Tabs go here -->
+			<button class="new-tab-btn" id="newTabBtn">+ New Tab</button>
+		</div>
+
+		<div class="content-area" id="contentArea">
+			<!-- Tab contents go here -->
+		</div>
+	</main>
+
+	<script>
+		// API endpoint
+const SEARCH_API = 'https://youtubeplayer.lastarria.cl/worker/watch/yt/search/';
+
+let tabs = [];
+let activeTabId = null;
+let tabIdCounter = 0;
+let queue = JSON.parse(localStorage.getItem('zenith_video_queue') || '[]');
+
+const searchInput = document.getElementById('searchInput');
+const newTabBtn = document.getElementById('newTabBtn');
+const tabsBar = document.getElementById('tabsBar');
+const contentArea = document.getElementById('contentArea');
+const toast = document.getElementById('toast');
+const bgBlur = document.getElementById('bg-blur');
+
+function notify(msg) {
+toast.innerText = msg;
+toast.classList.add('show');
+setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// --- NEW FUNCTION: Tab Cloaker ---
+function openInDashboard(videoId) {
+const win = window.open('about:blank', '_blank');
+
+if (!win) {
+notify("Pop-up blocked! Please allow pop-ups.");
+return;
+}
+
+const doc = win.document;
+doc.open();
+doc.write(`
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Dashboard</title>
+	<link rel="icon" type="image/png"
+		href="https://instructure-uploads.s3.amazonaws.com/account_30000000002042/attachments/80746393/favicon-16x16.png">
+	<style>
+		body,
+		html {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: #000;
+		}
+
+		iframe {
+			width: 100%;
+			height: 100%;
+			border: none;
+		}
+	</style>
+</head>
+
+<body>
+	<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1"
+		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+		allowfullscreen>
+	</iframe>
+</body>
+
+</html>
+`);
+doc.close();
+}
+
+// Tab Management
+function createTab(title = 'New Tab', videoId = null, isSearch = false, searchQuery = '') {
+const tabId = tabIdCounter++;
+const tab = {
+id: tabId,
+title: title,
+videoId: videoId,
+isSearch: isSearch,
+searchQuery: searchQuery
+};
+
+tabs.push(tab);
+renderTabs();
+setActiveTab(tabId);
+
+if (videoId) {
+loadVideo(tabId, videoId, title);
+} else if (isSearch) {
+performSearch(tabId, searchQuery);
+} else {
+showEmptyState(tabId);
+}
+}
+
+function renderTabs() {
+const tabsHtml = tabs.map(tab => `
+<div class="tab ${tab.id === activeTabId ? 'active' : ''}" data-id="${tab.id}">
+	<span class="tab-icon">${tab.videoId ? '▶' : '🔍'}</span>
+	<span class="tab-title">${tab.title}</span>
+	<div class="tab-close" data-close="${tab.id}">×</div>
+</div>
+`).join('');
+
+tabsBar.innerHTML = tabsHtml + '<button class="new-tab-btn" id="newTabBtn">+</button>';
+
+document.getElementById('newTabBtn').addEventListener('click', () => createTab());
+
+tabsBar.querySelectorAll('.tab').forEach(tabEl => {
+tabEl.addEventListener('click', (e) => {
+if (!e.target.classList.contains('tab-close')) {
+setActiveTab(parseInt(tabEl.dataset.id));
+}
+});
+});
+
+tabsBar.querySelectorAll('.tab-close').forEach(closeBtn => {
+closeBtn.addEventListener('click', (e) => {
+e.stopPropagation();
+closeTab(parseInt(closeBtn.dataset.close));
+});
+});
+}
+
+function setActiveTab(tabId) {
+activeTabId = tabId;
+renderTabs();
+
+document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+const contentEl = document.getElementById(`content-${tabId}`);
+if (contentEl) contentEl.classList.add('active');
+}
+
+function closeTab(tabId) {
+const index = tabs.findIndex(t => t.id === tabId);
+if (index === -1) return;
+
+tabs.splice(index, 1);
+const contentEl = document.getElementById(`content-${tabId}`);
+if (contentEl) contentEl.remove();
+
+if (tabId === activeTabId) {
+if (tabs.length > 0) {
+setActiveTab(tabs[Math.max(0, index - 1)].id);
+} else {
+activeTabId = null;
+}
+}
+
+renderTabs();
+if (tabs.length === 0) createTab();
+}
+
+function showEmptyState(tabId) {
+let contentEl = document.getElementById(`content-${tabId}`);
+if (!contentEl) {
+contentEl = document.createElement('div');
+contentEl.id = `content-${tabId}`;
+contentEl.className = 'tab-content';
+contentArea.appendChild(contentEl);
+}
+
+contentEl.innerHTML = `
+<div class="empty-state">
+	<div class="empty-icon">▶</div>
+	<h2>Ready to Watch</h2>
+	<p>Search for videos or paste a YouTube URL in the search bar above</p>
+</div>
+`;
+
+if (tabId === activeTabId) contentEl.classList.add('active');
+}
+
+// --- UPDATED: loadVideo with Overlay Button ---
+function loadVideo(tabId, videoId, title = 'YouTube Video') {
+const tab = tabs.find(t => t.id === tabId);
+if (tab) {
+tab.videoId = videoId;
+tab.isSearch = false;
+tab.title = title.substring(0, 30);
+renderTabs();
+}
+
+let contentEl = document.getElementById(`content-${tabId}`);
+if (!contentEl) {
+contentEl = document.createElement('div');
+contentEl.id = `content-${tabId}`;
+contentEl.className = 'tab-content';
+contentArea.appendChild(contentEl);
+}
+
+const src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1&modestbranding=1&rel=0`;
+
+// Added video-info-bar with the "Open in Dashboard" button
+contentEl.innerHTML = `
+<div class="video-wrapper">
+	<iframe src="${src}"
+		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+		allowfullscreen></iframe>
+	<div class="video-info-bar">
+		<div class="now-playing">
+			<h3>${title}</h3>
+			<p>Now Playing</p>
+		</div>
+		<button class="action-btn" onclick="openInDashboard('${videoId}')">
+                            Open in Fullscreen ↗
+                        </button>
+	</div>
+</div>
+`;
+
+bgBlur.style.backgroundImage = `url(https://img.youtube.com/vi/${videoId}/maxresdefault.jpg)`;
+
+if (tabId === activeTabId) contentEl.classList.add('active');
+
+addToQueue(videoId, title);
+}
+
+// Search
+function parseInput(text) {
+if (!text) return null;
+text = text.trim();
+const idRegex = /^[A-Za-z0-9_-]{11}$/;
+
+if (idRegex.test(text)) return { id: text };
+
+try {
+const maybeUrl = text.includes('://') ? text : 'https://' + text;
+const url = new URL(maybeUrl);
+const host = url.hostname.toLowerCase();
+
+if (host === 'youtu.be') {
+const id = url.pathname.slice(1).split(/[?/]/)[0];
+if (id && idRegex.test(id)) return { id: id };
+}
+
+if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
+const v = url.searchParams.get('v');
+if (v && idRegex.test(v)) return { id: v };
+}
+} catch (e) { }
+
+if (text.length > 0) return { query: text };
+return null;
+}
+
+async function performSearch(tabId, query) {
+const tab = tabs.find(t => t.id === tabId);
+if (tab) {
+tab.title = `${query.substring(0, 20)}...`;
+tab.searchQuery = query;
+tab.isSearch = true;
+renderTabs();
+}
+
+let contentEl = document.getElementById(`content-${tabId}`);
+if (!contentEl) {
+contentEl = document.createElement('div');
+contentEl.id = `content-${tabId}`;
+contentEl.className = 'tab-content';
+contentArea.appendChild(contentEl);
+}
+
+contentEl.innerHTML = `
+<div class="loading-container">
+	<div class="loading-spinner"></div>
+	<div class="loading-text">Searching for "${query}"...</div>
+</div>
+`;
+
+if (tabId === activeTabId) contentEl.classList.add('active');
+
+try {
+const response = await fetch(`${SEARCH_API}${encodeURIComponent(query)}?max=20`);
+if (!response.ok) throw new Error('Search failed');
+
+const data = await response.json();
+
+if (data.ok && data.results) {
+renderSearchResults(tabId, data.results);
+} else {
+throw new Error('Invalid response');
+}
+} catch (error) {
+console.error('Search error:', error);
+contentEl.innerHTML = `
+<div class="empty-state">
+	<div class="empty-icon" style="background: rgba(255, 77, 77, 0.1);">⚠</div>
+	<h2>Search Failed</h2>
+	<p>Unable to fetch results. Please try again.</p>
+</div>
+`;
+}
+}
+
+function renderSearchResults(tabId, videos) {
+const contentEl = document.getElementById(`content-${tabId}`);
+if (!contentEl) return;
+
+if (videos.length === 0) {
+contentEl.innerHTML = `
+<div class="empty-state">
+	<div class="empty-icon">🔍</div>
+	<h2>No Results</h2>
+	<p>Try a different search term</p>
+</div>
+`;
+return;
+}
+
+const cardsHtml = videos.map(video => `
+<div class="video-card" data-id="${video.id}" data-title="${(video.title || '').replace(/"/g, '"' )}"
+	data-channel="${(video.channel || '').replace(/"/g, '"' )}">
+	<img class="thumbnail" src="${video.thumbnail || `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}" alt="${video.title || ''}" />
+	<div class="card-info">
+		<div class="card-title">${video.title || 'Untitled'}</div>
+		<div class="card-channel">${video.channel || 'Unknown'}</div>
+	</div>
+</div>
+`).join('');
+
+contentEl.innerHTML = `<div class="search-results">${cardsHtml}</div>`;
+
+contentEl.querySelectorAll('.video-card').forEach(card => {
+card.addEventListener('click', () => {
+const videoId = card.dataset.id;
+const title = card.dataset.title;
+const channel = card.dataset.channel;
+
+const tab = tabs.find(t => t.id === tabId);
+if (tab) {
+tab.title = title.substring(0, 25);
+tab.videoId = videoId;
+tab.isSearch = false;
+renderTabs();
+}
+
+loadVideo(tabId, videoId, title);
+});
+});
+}
+
+// Queue Management
+function addToQueue(videoId, title, channel = '') {
+if (queue.some(q => q.id === videoId)) return;
+
+queue.unshift({ id: videoId, title, channel });
+if (queue.length > 20) queue.pop();
+saveQueue();
+}
+
+function saveQueue() {
+localStorage.setItem('zenith_video_queue', JSON.stringify(queue));
+renderQueue();
+}
+
+function clearQueue() {
+queue = [];
+saveQueue();
+}
+
+function renderQueue() {
+const queueList = document.getElementById('queue-list');
+
+if (queue.length === 0) {
+queueList.innerHTML = `
+<div style="text-align: center; padding: 40px 20px; color: var(--text-dim);">
+	<p style="font-size: 0.9rem;">Your watch history will appear here</p>
+</div>
+`;
+return;
+}
+
+queueList.innerHTML = queue.map((item, i) => `
+<div class="q-row" data-index="${i}">
+	<img class="thumb" src="https://img.youtube.com/vi/${item.id}/default.jpg" alt="">
+	<div class="info">
+		<div class="title">${item.title}</div>
+		<div class="channel">${item.channel || 'YouTube'}</div>
+	</div>
+	<button class="remove-btn" data-remove="${i}">×</button>
+</div>
+`).join('');
+
+queueList.querySelectorAll('.q-row').forEach(row => {
+row.addEventListener('click', (e) => {
+if (!e.target.classList.contains('remove-btn')) {
+const item = queue[parseInt(row.dataset.index)];
+if (activeTabId !== null) {
+loadVideo(activeTabId, item.id, item.title);
+} else {
+createTab(item.title, item.id);
+}
+}
+});
+});
+
+queueList.querySelectorAll('.remove-btn').forEach(btn => {
+btn.addEventListener('click', (e) => {
+e.stopPropagation();
+queue.splice(parseInt(btn.dataset.remove), 1);
+saveQueue();
+});
+});
+}
+
+// Handle search
+function handleSearch() {
+const input = searchInput.value.trim();
+if (!input) return;
+
+const parsed = parseInput(input);
+if (!parsed) return;
+
+if (parsed.id) {
+createTab('Loading...', parsed.id, false);
+} else if (parsed.query) {
+createTab(`${parsed.query.substring(0, 20)}...`, null, true, parsed.query);
+}
+
+searchInput.value = '';
+}
+
+// Event Listeners
+searchInput.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') handleSearch();
+});
+
+newTabBtn.addEventListener('click', () => createTab());
+
+// Initialize
+renderQueue();
+createTab();
+	</script>
+</body>
+
+</html>
