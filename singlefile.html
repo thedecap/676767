@@ -610,7 +610,7 @@ window.addEventListener('load', function () {
      flaps between commits — so "is this even the build I just shipped?" has to
      be answerable without guessing. The launcher reads it out of the payload
      and shows it; window.__pvBuild answers it from inside a running vault. */
-  var BUILD = '20260816-0300';
+  var BUILD = '20260816-0324';
   try { window.__pvBuild = BUILD; } catch (e) { }
 
   /* ---------------------------------------------------------------
@@ -949,6 +949,19 @@ window.addEventListener('load', function () {
       if (!w.parent || w.parent === w) break;
       w = w.parent;
     }
+
+    /* Always post as well. If this vault sits on a different origin from the
+       wrapper — an opaque blob origin, a sandboxed host — the walk above
+       throws on the first ancestor and localStorage is not shared either, so
+       postMessage is the only channel left that reaches the tab. */
+    try {
+      var msg = { __pvSetCover: cover || 'reset' };
+      if (window.parent && window.parent !== window) window.parent.postMessage(msg, '*');
+      if (window.top && window.top !== window && window.top !== window.parent) {
+        window.top.postMessage(msg, '*');
+      }
+    } catch (e) { }
+
     return hit;
   }
 
