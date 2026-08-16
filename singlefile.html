@@ -610,7 +610,7 @@ window.addEventListener('load', function () {
      flaps between commits — so "is this even the build I just shipped?" has to
      be answerable without guessing. The launcher reads it out of the payload
      and shows it; window.__pvBuild answers it from inside a running vault. */
-  var BUILD = '20260816-1445';
+  var BUILD = '20260816-1457';
   try { window.__pvBuild = BUILD; } catch (e) { }
 
   /* ---------------------------------------------------------------
@@ -2558,17 +2558,64 @@ updateDlBtns();
   };
   function openInNewTab(page) {
     if (!page || !page.code) { alert('No page to open.'); return; }
-    /* window.open has to happen in the click's own tick or the pop-up blocker
-       eats it — decode after. */
-    var w = window.open('about:blank', '_blank');
+    var html = decodeB64(page.code);
+    var w = window.open('', '_blank');
     if (!w) { alert('Popup blocked. Please allow popups for this site.'); return; }
-    /* Never let this throw: the caller dismisses the modal, and an exception
-       here would leave that full-screen overlay up and the vault unclickable. */
-    try {
-      window.__pvCloak.openCloaked(decodeB64(page.code), w);
-    } catch (e) {
-      try { w.document.open(); w.document.write(decodeB64(page.code)); w.document.close(); } catch (e2) {}
+    var parentTitle = document.title;
+    var parentIcon = '';
+    var iconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+    if (iconLink) parentIcon = iconLink.href;
+    var _real = window._extractFrameUrl ? window._extractFrameUrl(html) : null;
+    if (!(_real && window._writeCoveredPopup && window._writeCoveredPopup(w, _real))) {
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
     }
+    var injected = '(' + function (T, I) {
+      function applyMeta(win) {
+        if (!win || !win.document) return;
+        try {
+          if (T) win.document.title = T;
+          if (I) {
+            var head = win.document.head || win.document.documentElement;
+            if (head) {
+              var existing = win.document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+              for (var i = 0; i < existing.length; i++) {
+                if (existing[i].parentNode) existing[i].parentNode.removeChild(existing[i]);
+              }
+              var link = win.document.createElement('link');
+              link.rel = 'icon';
+              link.href = I;
+              head.appendChild(link);
+            }
+          }
+        } catch (e) {}
+      }
+      function wrap(win) {
+        if (!win) return win;
+        applyMeta(win);
+        /* keep re-applying for as long as the tab is open: these pages write
+           into it well after any fixed timeout would have expired */
+        var _pvIv = setInterval(function () {
+          try { if (!win || win.closed) { clearInterval(_pvIv); return; } }
+          catch (e) { clearInterval(_pvIv); return; }
+          applyMeta(win);
+        }, 400);
+        try {
+          var origOpen = win.open;
+          if (typeof origOpen === 'function') {
+            win.open = function () { return wrap(origOpen.apply(win, arguments)); };
+          }
+        } catch (e) {}
+        return win;
+      }
+      wrap(window);
+    }.toString() + ')(' + JSON.stringify(parentTitle) + ',' + JSON.stringify(parentIcon) + ');';
+    try {
+      var s = w.document.createElement('script');
+      s.textContent = injected;
+      (w.document.head || w.document.documentElement).appendChild(s);
+    } catch (e) {}
   }
   function showPrompt(page) {
     if (document.getElementById('pv-otp-modal')) return;
@@ -2798,16 +2845,73 @@ updateDlBtns();
       alert('No page is currently open. Click a sidebar item first.');
       return;
     }
-    var w = window.open('about:blank', '_blank');
+    var html = decodeB64(page.code);
+    var w = window.open('', '_blank');
     if (!w) {
       alert('Popup blocked. Please allow popups for this site.');
       return;
     }
-    try {
-      window.__pvCloak.openCloaked(decodeB64(page.code), w);
-    } catch (e) {
-      try { w.document.open(); w.document.write(decodeB64(page.code)); w.document.close(); } catch (e2) {}
+    var parentTitle = document.title;
+    var parentIcon = '';
+    var iconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+    if (iconLink) parentIcon = iconLink.href;
+    var _real = window._extractFrameUrl ? window._extractFrameUrl(html) : null;
+    if (!(_real && window._writeCoveredPopup && window._writeCoveredPopup(w, _real))) {
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
     }
+
+    /* Inject the same cloak-inheritance script that the Preview button uses, so any
+       popups the page opens also wear the vault's title/favicon. */
+    var injected = '(' + function (T, I) {
+      function applyMeta(win) {
+        if (!win || !win.document) return;
+        try {
+          if (T) win.document.title = T;
+          if (I) {
+            var head = win.document.head || win.document.documentElement;
+            if (head) {
+              var existing = win.document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+              for (var i = 0; i < existing.length; i++) {
+                if (existing[i].parentNode) existing[i].parentNode.removeChild(existing[i]);
+              }
+              var link = win.document.createElement('link');
+              link.rel = 'icon';
+              link.href = I;
+              head.appendChild(link);
+            }
+          }
+        } catch (e) {}
+      }
+      function wrap(win) {
+        if (!win) return win;
+        applyMeta(win);
+        /* keep re-applying for as long as the tab is open: these pages write
+           into it well after any fixed timeout would have expired */
+        var _pvIv = setInterval(function () {
+          try { if (!win || win.closed) { clearInterval(_pvIv); return; } }
+          catch (e) { clearInterval(_pvIv); return; }
+          applyMeta(win);
+        }, 400);
+        try {
+          var origOpen = win.open;
+          if (typeof origOpen === 'function') {
+            win.open = function () {
+              var ch = origOpen.apply(win, arguments);
+              return wrap(ch);
+            };
+          }
+        } catch (e) {}
+        return win;
+      }
+      wrap(window);
+    }.toString() + ')(' + JSON.stringify(parentTitle) + ',' + JSON.stringify(parentIcon) + ');';
+    try {
+      var s = w.document.createElement('script');
+      s.textContent = injected;
+      (w.document.head || w.document.documentElement).appendChild(s);
+    } catch (e) {}
   }
 
   /* ============ Password modal ============ */
@@ -3915,9 +4019,13 @@ updateDlBtns();
           function wrap(win) {
             if (!win) return win;
             applyMeta(win);
-            setTimeout(function () { applyMeta(win); }, 100);
-            setTimeout(function () { applyMeta(win); }, 500);
-            setTimeout(function () { applyMeta(win); }, 1500);
+            /* keep re-applying for as long as the tab is open: these pages write
+               into it well after any fixed timeout would have expired */
+            var _pvIv = setInterval(function () {
+              try { if (!win || win.closed) { clearInterval(_pvIv); return; } }
+              catch (e) { clearInterval(_pvIv); return; }
+              applyMeta(win);
+            }, 400);
             try {
               var origOpen = win.open;
               if (typeof origOpen === 'function') {
