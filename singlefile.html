@@ -613,6 +613,10 @@ window.addEventListener('load', function () {
     if (window.__pvShim) return;
     window.__pvShim = 1;
 
+    /* Publish the cover into this realm so anything nested here — or a vault
+       loaded into this tab — can read it without guessing from frame depth. */
+    try { window.__pvCover = { title: cfg.title, favicon: cfg.favicon }; } catch (e) { }
+
     var SRC = '(' + pvShim + ')(' + JSON.stringify(cfg) + ');';
     var isTop = false;
     try { isTop = window.top === window; } catch (e) { isTop = false; }
@@ -853,11 +857,6 @@ window.addEventListener('load', function () {
      tab strip, so nothing repaints it. Reading our own title there would hand
      every child the wrong disguise, which is exactly how this broke. */
   function identity() {
-    var doc = document;
-    try {
-      if (window.top && window.top !== window && window.top.document) doc = window.top.document;
-    } catch (e) { doc = document; }      /* cross-origin top: fall back to ours */
-
     function read(d) {
       var t = '', f = '';
       try { t = d.title || ''; } catch (e) { }
@@ -867,6 +866,32 @@ window.addEventListener('load', function () {
       } catch (e) { }
       return { title: t, favicon: f };
     }
+
+    /* 1. A launcher shim publishes the cover as __pvCover in every realm it
+          runs in — including this one, since the launcher injects itself into
+          the payload. Reading it needs no cross-frame access and does not care
+          how deeply the vault is nested, which walking to window.top does:
+          one extra wrapper (a Sites embed, a harness) and top is the wrong
+          document entirely. */
+    try {
+      var w = window;
+      for (var i = 0; i < 12; i++) {
+        try {
+          var c = w.__pvCover;
+          if (c && (c.title || c.favicon)) {
+            return { title: c.title || '', favicon: c.favicon || '' };
+          }
+        } catch (e) { break; }          /* cross-origin ancestor: stop climbing */
+        if (!w.parent || w.parent === w) break;
+        w = w.parent;
+      }
+    } catch (e) { }
+
+    /* 2. No launcher: the tab's own document, then ours. */
+    var doc = document;
+    try {
+      if (window.top && window.top !== window && window.top.document) doc = window.top.document;
+    } catch (e) { doc = document; }
 
     var id = read(doc);
     if (!id.title && doc !== document) id = read(document);
