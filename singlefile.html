@@ -610,7 +610,7 @@ window.addEventListener('load', function () {
      flaps between commits — so "is this even the build I just shipped?" has to
      be answerable without guessing. The launcher reads it out of the payload
      and shows it; window.__pvBuild answers it from inside a running vault. */
-  var BUILD = '20260816-0248';
+  var BUILD = '20260816-0300';
   try { window.__pvBuild = BUILD; } catch (e) { }
 
   /* ---------------------------------------------------------------
@@ -932,6 +932,32 @@ window.addEventListener('load', function () {
     return '(' + pvShim + ')(' + JSON.stringify(cfg).replace(/<\/(script)/gi, '<\\/$1') + ');';
   }
 
+  /* ---- Tab Cloak -> the document that actually owns the tab ----
+     A framed vault cannot move the tab strip by setting its own title, and the
+     launcher's lock would overwrite it on the next tick anyway. So instead of
+     fighting it, tell the launcher what to enforce. Every realm the launcher's
+     shim reached exposes __pvSetCover; walk self-then-parents and update each,
+     which also keeps __pvCover in step so new tabs inherit the cloak rather
+     than the original cover. Passing null restores the launcher's default. */
+  function pushCover(cover) {
+    var hit = false, w = window;
+    for (var i = 0; i < 12; i++) {
+      try {
+        if (cover) w.__pvCover = { title: cover.title, favicon: cover.favicon };
+        if (typeof w.__pvSetCover === 'function') { w.__pvSetCover(cover); hit = true; }
+      } catch (e) { break; }                 /* cross-origin ancestor: stop */
+      if (!w.parent || w.parent === w) break;
+      w = w.parent;
+    }
+    return hit;
+  }
+
+  function setCover(title, favicon) {
+    return pushCover({ title: title || '', favicon: favicon || '' });
+  }
+
+  function resetCover() { return pushCover(null); }
+
   /* Inject the shim into a payload's <head>, after any <meta charset> so the
      encoding pre-scan (first 1024 bytes) still finds it. \b matters: /<head[^>]*>/
      also matches <header>. */
@@ -1091,6 +1117,8 @@ window.addEventListener('load', function () {
     shimSrc: shimSrc,
     config: config,
     identity: identity,
+    setCover: setCover,
+    resetCover: resetCover,
     withShim: withShim,
     openCloaked: openCloaked,
     pagePatch: pagePatch
@@ -2070,6 +2098,7 @@ updateDlBtns();
   function applyCloak(title, favicon) {
     if (title) document.title = title;
     if (favicon) setFavicon(favicon);
+    try { window.__pvCloak.setCover(title || '', favicon || ''); } catch(e){}
     try {
       if (title) localStorage.setItem('cloakTitle', title);
       if (favicon) localStorage.setItem('cloakFavicon', favicon);
@@ -2082,6 +2111,7 @@ updateDlBtns();
   function resetCloak() {
     document.title = ORIG_TITLE;
     setFavicon(ORIG_FAVICON);
+    try { window.__pvCloak.resetCover(); } catch(e){}
     document.getElementById('cloakTitle').value = '';
     document.getElementById('cloakFavicon').value = '';
     try {
@@ -2287,6 +2317,8 @@ updateDlBtns();
     captureOriginals();
     if (title) document.title = title;
     if (favicon) setFavicon(favicon);
+    /* and the document that owns the tab, if a launcher is above us */
+    try { window.__pvCloak.setCover(title || ORIG_TITLE || '', favicon || ''); } catch(e){}
     try {
       if (title)   localStorage.setItem(LS_CLOAK_T, title);   else localStorage.removeItem(LS_CLOAK_T);
       if (favicon) localStorage.setItem(LS_CLOAK_F, favicon); else localStorage.removeItem(LS_CLOAK_F);
@@ -2296,6 +2328,9 @@ updateDlBtns();
     captureOriginals();
     if (ORIG_TITLE !== null) document.title = ORIG_TITLE;
     setFavicon(ORIG_FAV || '');
+    /* null = restore the launcher's own cover; handing it ORIG_TITLE would
+       put the vault's real title in the tab strip and unmask it. */
+    try { window.__pvCloak.resetCover(); } catch(e){}
     try { localStorage.removeItem(LS_CLOAK_T); localStorage.removeItem(LS_CLOAK_F); } catch(e){}
     var t = setCloakTitle; if (t) t.value = '';
     var f = setCloakFavicon; if (f) f.value = '';
@@ -2306,6 +2341,7 @@ updateDlBtns();
     try { t = localStorage.getItem(LS_CLOAK_T); f = localStorage.getItem(LS_CLOAK_F); } catch(e){}
     if (t) document.title = t;
     if (f) setFavicon(f);
+    if (t || f) { try { window.__pvCloak.setCover(t || '', f || ''); } catch(e){} }
     var ti = setCloakTitle; if (ti && t) ti.value = t;
     var fi = setCloakFavicon; if (fi && f) fi.value = f;
   }
