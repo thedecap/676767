@@ -610,7 +610,7 @@ window.addEventListener('load', function () {
      flaps between commits — so "is this even the build I just shipped?" has to
      be answerable without guessing. The launcher reads it out of the payload
      and shows it; window.__pvBuild answers it from inside a running vault. */
-  var BUILD = '20260816-1440';
+  var BUILD = '20260816-1445';
   try { window.__pvBuild = BUILD; } catch (e) { }
 
   /* ---------------------------------------------------------------
@@ -839,11 +839,22 @@ window.addEventListener('load', function () {
     }
 
     if (isTop) {
-      lockTitle();
       paint(document);
-      observe();
-      hookWrite();
       installLeave();
+
+      /* The invasive half — a Document.prototype.title override, a
+         MutationObserver, and hooks on document.open/write/writeln/close —
+         only goes into documents WE author. Several vault pages hand-build
+         their game tab with window.open + document.write and never call
+         document.close; hooking that document repaints it mid-parse and
+         breaks the page. Repainting on a timer is enough to hold the
+         disguise there, which is all these pages ever needed. */
+      if (!cfg.light) {
+        lockTitle();
+        observe();
+        hookWrite();
+      }
+
       setInterval(function () { paint(document); }, cfg.tick * 2);
       document.addEventListener('visibilitychange', function () { paint(document); });
     }
@@ -920,6 +931,9 @@ window.addEventListener('load', function () {
       favicon: id.favicon,
       bg: '#000',
       tick: 400,
+      /* Every window this module opens receives a page somebody else wrote, so
+         light is the right default. Only turn it off for a document we built. */
+      light: true,
       leave: leave,
       leaveKey: 'pvCloakLeave',
       /* OFF. Wrapping a real URL in a nested frame breaks any site that sends
@@ -1092,21 +1106,23 @@ window.addEventListener('load', function () {
     /* Full documents are written straight into the tab, the way this has always
        worked. Do NOT put them in a blob frame: about:blank inherits the opener's
        base URL so the page's relative URLs still resolve, and its scripts stay
-       top-level — a blob: document breaks both. There is no URL to hide here
-       anyway, and the shim's document.write hooks hold the title through the
-       write, so the extra frame bought nothing and cost compatibility.
+       top-level — a blob: document breaks both, and there is no URL to hide here
+       anyway.
 
-       Arm first: window.open is then patched and the title locked before the
-       page's own scripts run. document.open() clears the DOM but keeps the
-       window, so the patches survive the write. */
+       Write FIRST, arm after — the order the original used. Arming first was
+       tempting (window.open patched before the page's own scripts run) but it
+       installs the document.open/write/writeln/close hooks onto the very
+       document we are about to write into, so paint() and a MutationObserver
+       fire in the middle of the parse, before close(). That is what stopped
+       Backup Games and Gaming Center from working. Patching window.open a beat
+       later costs nothing: these pages call it on click, not at load. */
     try {
-      arm(w, cfg);
       w.document.open();
       w.document.write(html);
       w.document.close();
     } catch (e) { }
 
-    arm(w, cfg);                       /* re-assert after the write */
+    arm(w, cfg);
     try { w.focus(); } catch (e) { }
     return w;
   }
