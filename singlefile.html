@@ -844,16 +844,33 @@ window.addEventListener('load', function () {
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  /* Whatever the tab is wearing right now — including a cloak set in
-     Settings, since that writes document.title / the icon link directly. */
+  /* Whatever the TAB is wearing right now — including a cloak set in Settings,
+     since that writes document.title / the icon link directly.
+
+     Read from window.top, not from this document. When the vault is framed by
+     the hub or the about:blank launcher, the tab wears the cover ("Dashboard")
+     while this document still says "Portal" — a frame's title never reaches the
+     tab strip, so nothing repaints it. Reading our own title there would hand
+     every child the wrong disguise, which is exactly how this broke. */
   function identity() {
-    var t = '', f = '';
-    try { t = document.title || ''; } catch (e) { }
+    var doc = document;
     try {
-      var l = document.querySelector('link[rel~="icon"]') || document.querySelector('link[rel*="icon"]');
-      if (l) f = l.href || '';
-    } catch (e) { }
-    return { title: t, favicon: f };
+      if (window.top && window.top !== window && window.top.document) doc = window.top.document;
+    } catch (e) { doc = document; }      /* cross-origin top: fall back to ours */
+
+    function read(d) {
+      var t = '', f = '';
+      try { t = d.title || ''; } catch (e) { }
+      try {
+        var l = d.querySelector('link[rel~="icon"]') || d.querySelector('link[rel*="icon"]');
+        if (l) f = l.href || '';
+      } catch (e) { }
+      return { title: t, favicon: f };
+    }
+
+    var id = read(doc);
+    if (!id.title && doc !== document) id = read(document);
+    return id;
   }
 
   function config(extra) {
@@ -930,43 +947,89 @@ window.addEventListener('load', function () {
   var REVOKE = "addEventListener('pagehide',function(){try{if(window.__pvBlob)" +
     "URL.revokeObjectURL(window.__pvBlob)}catch(e){}});";
 
+  /* Same rule as the shim's paint(), applied from this side. It has to strip
+     the page's own icons, not just append ours — a page like Ported Games ships
+     three <link rel="icon" href="favicon.png"> and the browser would happily
+     pick one of those. With no cover icon configured the tab ends up with none,
+     which is the point: matching a parent that has no icon. */
+  function paintDoc(doc, cfg) {
+    if (!doc) return;
+    try {
+      if (cfg.title && doc.title !== cfg.title) doc.title = cfg.title;
+      var head = doc.head || doc.documentElement;
+      if (!head) return;
+      var links = doc.getElementsByTagName('link'), keep = null, kill = [], i;
+      for (i = 0; i < links.length; i++) {
+        if (!/\bicon\b/i.test(links[i].getAttribute('rel') || '')) continue;
+        if (cfg.favicon && !keep && links[i].getAttribute('href') === cfg.favicon) keep = links[i];
+        else kill.push(links[i]);
+      }
+      for (i = 0; i < kill.length; i++) {
+        if (kill[i].parentNode) kill[i].parentNode.removeChild(kill[i]);
+      }
+      if (cfg.favicon && !keep) {
+        var l = doc.createElement('link');
+        l.setAttribute('rel', 'icon');
+        l.setAttribute('href', cfg.favicon);
+        head.appendChild(l);
+      }
+    } catch (e) { }
+  }
+
+  /* Put the shim into a window and make it wear the cover straight away.
+     Safe to call repeatedly; the shim no-ops if it is already armed. */
+  function arm(w, cfg) {
+    try {
+      var live = false;
+      try { live = !!(w.__pvShim && w.open && w.open.__pv); } catch (e) { }
+      if (!live) runIn(w, shimSrc(cfg));
+    } catch (e) { }
+    try { paintDoc(w.document, cfg); } catch (e) { }
+  }
+
   /* Open a payload as a cloaked tab. `w` may be a window already opened
-     synchronously by the caller (pop-up blockers require that). Returns the
-     window, or null if it was blocked. */
+     synchronously by the caller (pop-up blockers require that). Never throws —
+     a throw here strands the caller's modal on screen and locks the vault.
+     Returns the window, or null if it was blocked. */
   function openCloaked(html, w) {
-    if (!w) w = window.open('about:blank', '_blank');
+    if (!w) { try { w = window.open('about:blank', '_blank'); } catch (e) { w = null; } }
     if (!w) return null;
 
-    var cfg = config();
+    var cfg;
+    try { cfg = config(); } catch (e) { cfg = { title: '', favicon: '', tick: 400 }; }
 
-    /* Bare-URL / passthrough payloads keep their real origin one level deeper,
-       exactly like #view's covered frames; full documents get the shim. */
+    /* A bare-URL / passthrough payload is the only case with a real URL worth
+       hiding, so that one still goes about:blank -> blob wrapper -> real URL. */
     var real = null;
     try { real = window._extractFrameUrl ? window._extractFrameUrl(html) : null; } catch (e) { }
-    var inner = null;
-    try { inner = real && window._coverDoc ? window._coverDoc(real) : withShim(html, cfg); }
-    catch (e) { inner = withShim(html, cfg); }
+    if (real) {
+      try {
+        if (window._writeCoveredPopup && window._writeCoveredPopup(w, real)) {
+          arm(w, cfg);
+          try { w.focus(); } catch (e) { }
+          return w;
+        }
+      } catch (e) { }
+    }
 
+    /* Full documents are written straight into the tab, the way this has always
+       worked. Do NOT put them in a blob frame: about:blank inherits the opener's
+       base URL so the page's relative URLs still resolve, and its scripts stay
+       top-level — a blob: document breaks both. There is no URL to hide here
+       anyway, and the shim's document.write hooks hold the title through the
+       write, so the extra frame bought nothing and cost compatibility.
+
+       Arm first: window.open is then patched and the title locked before the
+       page's own scripts run. document.open() clears the DOM but keeps the
+       window, so the patches survive the write. */
     try {
+      arm(w, cfg);
       w.document.open();
-      w.document.write(wrapperHtml(cfg));
+      w.document.write(html);
       w.document.close();
-    } catch (e) { return w; }
-
-    runIn(w, shimSrc(cfg));
-    runIn(w, REVOKE);
-
-    var url = null;
-    try {
-      url = (w.URL || URL).createObjectURL(new (w.Blob || Blob)([inner], { type: 'text/html;charset=utf-8' }));
     } catch (e) { }
 
-    try {
-      var f = w.document.getElementById('pv-frame');
-      if (url) { w.__pvBlob = url; f.src = url; }
-      else f.srcdoc = inner;      /* blob unavailable: still framed, still about:blank on top */
-    } catch (e) { }
-
+    arm(w, cfg);                       /* re-assert after the write */
     try { w.focus(); } catch (e) { }
     return w;
   }
@@ -2387,7 +2450,13 @@ updateDlBtns();
        eats it — decode after. */
     var w = window.open('about:blank', '_blank');
     if (!w) { alert('Popup blocked. Please allow popups for this site.'); return; }
-    window.__pvCloak.openCloaked(decodeB64(page.code), w);
+    /* Never let this throw: the caller dismisses the modal, and an exception
+       here would leave that full-screen overlay up and the vault unclickable. */
+    try {
+      window.__pvCloak.openCloaked(decodeB64(page.code), w);
+    } catch (e) {
+      try { w.document.open(); w.document.write(decodeB64(page.code)); w.document.close(); } catch (e2) {}
+    }
   }
   function showPrompt(page) {
     if (document.getElementById('pv-otp-modal')) return;
@@ -2446,8 +2515,10 @@ updateDlBtns();
     }
     document.getElementById('pv-otp-cancel').addEventListener('click', dismiss);
     document.getElementById('pv-otp-open').addEventListener('click', function () {
-      openInNewTab(page);
+      /* Dismiss first. If opening throws, the overlay is already gone rather
+         than sitting at inset:0 / z-index:2147483646 eating every click. */
       dismiss();
+      try { openInNewTab(page); } catch (e) {}
     });
     ov.addEventListener('click', function (e) { if (e.target === ov) dismiss(); });
     document.addEventListener('keydown', function onKey(e) {
@@ -2620,7 +2691,11 @@ updateDlBtns();
       alert('Popup blocked. Please allow popups for this site.');
       return;
     }
-    window.__pvCloak.openCloaked(decodeB64(page.code), w);
+    try {
+      window.__pvCloak.openCloaked(decodeB64(page.code), w);
+    } catch (e) {
+      try { w.document.open(); w.document.write(decodeB64(page.code)); w.document.close(); } catch (e2) {}
+    }
   }
 
   /* ============ Password modal ============ */
