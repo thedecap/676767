@@ -610,7 +610,7 @@ window.addEventListener('load', function () {
      flaps between commits — so "is this even the build I just shipped?" has to
      be answerable without guessing. The launcher reads it out of the payload
      and shows it; window.__pvBuild answers it from inside a running vault. */
-  var BUILD = '20260816-0324';
+  var BUILD = '20260816-1440';
   try { window.__pvBuild = BUILD; } catch (e) { }
 
   /* ---------------------------------------------------------------
@@ -739,11 +739,13 @@ window.addEventListener('load', function () {
       var external = s && !/^about:blank/i.test(s) && !/^javascript:/i.test(s) && !/^blob:/i.test(s);
       var coverIt = external && cfg.coverExternal;
 
-      /* localStorage kill-switch, so a game broken by X-Frame-Options can be
-         un-cloaked without rebuilding the vault. */
-      if (coverIt) {
-        try { if (localStorage.getItem('pvCoverExternal') === '0') coverIt = false; } catch (e) { }
-      }
+      /* localStorage override, both ways, so this can be flipped without a
+         rebuild if a game turns out to need one or the other. */
+      try {
+        var sw = localStorage.getItem('pvCoverExternal');
+        if (sw === '0') coverIt = false;
+        else if (sw === '1' && external) coverIt = true;
+      } catch (e) { }
 
       try {
         if (coverIt) {
@@ -920,7 +922,10 @@ window.addEventListener('load', function () {
       tick: 400,
       leave: leave,
       leaveKey: 'pvCloakLeave',
-      coverExternal: true,
+      /* OFF. Wrapping a real URL in a nested frame breaks any site that sends
+         X-Frame-Options, and those used to open in a real tab and work. Set
+         localStorage.pvCoverExternal='1' to turn it back on. */
+      coverExternal: false,
       allow: (v && v.getAttribute('allow')) || '',
       rp: (v && v.getAttribute('referrerpolicy')) || 'no-referrer-when-downgrade'
     };
@@ -1634,10 +1639,18 @@ function loadCode(p,b){
       return;
     }
   }
-  /* Injected ahead of the page's own scripts: the pushState/alert swallow plus
-     the cloak shim, so any tab this page opens keeps the vault's title and
-     favicon and inherits the leave-confirm prompt. See #pv-cloak-core. */
-  const patch = window.__pvCloak.pagePatch();
+  // Capture vault's title + favicon to pass into the game iframe.
+  // When the game calls window.open('about:blank'), we force the popup to wear vault's identity.
+  let _vaultTitle='';
+  let _vaultFav='';
+  try{
+    _vaultTitle = document.title||'';
+    const fl=document.querySelector('link[rel~="icon"]')||document.querySelector('link[rel*="icon"]');
+    if(fl)_vaultFav = fl.href||'';
+  }catch(e){}
+  const _esc = s => String(s||'').replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/<\/script>/gi,'<\\/script>');
+  // Otherwise: blob URL with the pushState/alert swallow + window.open cloak patch injected
+  const patch='<script>(function(){try{var _p=history.pushState.bind(history),_r=history.replaceState.bind(history);history.pushState=function(s,t,u){try{return _p(s,t,u);}catch(e){try{return _p(s,t);}catch(_){}}};history.replaceState=function(s,t,u){try{return _r(s,t,u);}catch(e){try{return _r(s,t);}catch(_){}}};window.addEventListener("error",function(e){var m=(e&&e.message)||"";if(/pushState|replaceState|SecurityError|Failed to load zone|Failed to execute/.test(m)){e.preventDefault();e.stopImmediatePropagation();return false;}},true);window.addEventListener("unhandledrejection",function(e){var m=(e&&e.reason&&(e.reason.message||e.reason))||"";if(/pushState|replaceState|SecurityError|Failed to load zone/.test(String(m))){e.preventDefault();}},true);var _al=window.alert;window.alert=function(m){if(typeof m==="string"&&/pushState|replaceState|SecurityError|Failed to load zone|Failed to execute/.test(m))return;return _al.apply(window,arguments);};var VT="'+_esc(_vaultTitle)+'",VF="'+_esc(_vaultFav)+'";var _oo=window.open;window.open=function(u,t,f){var isBlank=(!u||u==="about:blank"||u==="");var w=_oo.apply(window,arguments);if(w&&isBlank&&VT){try{var _busy=false;function forceTitle(){if(!w||!w.document)return;try{var head=w.document.head;if(!head&&w.document.documentElement){head=w.document.createElement("head");w.document.documentElement.appendChild(head);}if(!head)return;var titles=head.querySelectorAll("title");if(!titles.length){var t=w.document.createElement("title");t.textContent=VT;head.appendChild(t);}else{titles.forEach(function(el){if(el.textContent!==VT)el.textContent=VT;});}}catch(_){}}function forceFav(){if(!VF||!w||!w.document)return;try{var head=w.document.head;if(!head)return;var ex=head.querySelector("link[rel~=\\"icon\\"]");if(!ex||ex.href!==VF){head.querySelectorAll("link[rel*=icon]").forEach(function(e){e.remove();});var l=w.document.createElement("link");l.rel="icon";l.type="image/x-icon";l.href=VF;head.appendChild(l);}}catch(_){}}function applyAll(){if(_busy)return;_busy=true;try{forceTitle();forceFav();}catch(_){}_busy=false;}try{var proto=Object.getPrototypeOf(w.document);var desc=Object.getOwnPropertyDescriptor(proto||{},"title")||Object.getOwnPropertyDescriptor(Document.prototype,"title");if(desc&&desc.set){Object.defineProperty(w.document,"title",{configurable:true,enumerable:true,get:function(){return VT;},set:function(v){forceTitle();}});}}catch(_){}applyAll();applyAll();try{w.addEventListener("load",applyAll);w.addEventListener("DOMContentLoaded",applyAll);}catch(_){}try{var _obs=new MutationObserver(function(muts){if(_busy)return;applyAll();});_obs.observe(w.document,{childList:true,subtree:true,characterData:true});}catch(_){}var _t0=Date.now();var _iv=setInterval(function(){try{applyAll();}catch(_){clearInterval(_iv);return;}if(!w||w.closed||Date.now()-_t0>30000)clearInterval(_iv);},150);}catch(_){}}return w;};}catch(e){}})();<\/script>';
   let out=html;
   /* \b matters: /<head[^>]*>/ also matches <header>, which would inject the patch
      into the page body instead of the document head. */
