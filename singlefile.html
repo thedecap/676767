@@ -605,6 +605,14 @@ window.addEventListener('load', function () {
 (function () {
   'use strict';
 
+  /* Stamped at build time. Both CDNs serve stale copies of this file for a
+     while after a push — jsDelivr's @main is stuck permanently and @latest
+     flaps between commits — so "is this even the build I just shipped?" has to
+     be answerable without guessing. The launcher reads it out of the payload
+     and shows it; window.__pvBuild answers it from inside a running vault. */
+  var BUILD = '20260816-0248';
+  try { window.__pvBuild = BUILD; } catch (e) { }
+
   /* ---------------------------------------------------------------
      The shim. Self-contained: it runs in other realms, and stringifies
      itself to inject into children. Keep it dependency-free.
@@ -1079,6 +1087,7 @@ window.addEventListener('load', function () {
   }
 
   window.__pvCloak = {
+    build: BUILD,
     shimSrc: shimSrc,
     config: config,
     identity: identity,
