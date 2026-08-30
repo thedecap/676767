@@ -2620,6 +2620,7 @@ updateDlBtns();
 })();
 </script>
 <script id="pv-devmode-inject">
+
 /* === Project Vault Developer Mode === */
 (function () {
   'use strict';
@@ -2980,8 +2981,11 @@ updateDlBtns();
     var s = escHtml(html);
     s = s.replace(/&lt;!--[\s\S]*?--&gt;/g, function (m) { return 'CMT' + m + '/CMT'; });
     s = s.replace(/&lt;!DOCTYPE[^]*?&gt;/gi, function (m) { return 'DOC' + m + '/DOC'; });
-    s = s.replace(/(&lt;\/?)([a-zA-Z][\w:-]*)((?:\s+[^&]*?)?)(\s*\/?&gt;)/g, function (m, lt, tag, attrs, gt) {
-      var attrsHtml = attrs.replace(/([\w:-]+)(=)?("[^"]*"|'[^']*'|[^\s&]+)?/g, function (mm, an, eq, av) {
+    /* Attribute values may contain &amp; (query strings). The old class excluded
+       '&' outright, so <a href="x?a=1&b=2"> never matched and silently lost all
+       highlighting; allow any '&' that does not begin the closing &gt;. */
+    s = s.replace(/(&lt;\/?)([a-zA-Z][\w:-]*)((?:\s+(?:[^&]|&(?!gt;))*?)?)(\s*\/?&gt;)/g, function (m, lt, tag, attrs, gt) {
+      var attrsHtml = attrs.replace(/([\w:-]+)(=)?("[^"]*"|'[^']*'|(?:[^\s&]|&(?!gt;))+)?/g, function (mm, an, eq, av) {
         if (!an) return mm;
         var out = '<span class="pv-h-attr">' + an + '</span>';
         if (eq) out += '<span class="pv-h-eq">' + eq + '</span>';
@@ -3070,6 +3074,137 @@ updateDlBtns();
 
   /* Find runtime data array. `const data` lives in the script's lexical scope, not on window.
      But `globalThis` plus a fallback eval reaches it. */
+  /* ===== HTML beautifier =====
+     Tokenised rather than regex-per-tag: attribute values can contain '>' and
+     <script>/<style> bodies are raw text, both of which a naive /<[^>]+>/ pass
+     mangles. Only inserts whitespace between nodes; never rewrites the contents
+     of a raw-text or preformatted element. */
+  var PV_VOID = /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/i;
+  var PV_RAW = /^(script|style)$/i;
+  var PV_PRE = /^(pre|textarea)$/i;
+
+  function pvIndentBlock(text, pad) {
+    var lines = String(text).replace(/\r\n?/g, '\n').split('\n');
+    while (lines.length && !lines[0].trim()) lines.shift();
+    while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+    if (!lines.length) return '';
+    var min = Infinity;
+    lines.forEach(function (l) { if (l.trim()) { var w = l.match(/^[ \t]*/)[0].length; if (w < min) min = w; } });
+    if (!isFinite(min)) min = 0;
+    return lines.map(function (l) { return l.trim() ? pad + l.slice(min) : ''; }).join('\n');
+  }
+
+  /* Put a minified script/style body onto separate lines. String- and comment-aware,
+     so a brace or semicolon inside a literal is never mistaken for structure. Purely
+     additive: only whitespace is inserted, so the code is otherwise unchanged. */
+  function pvBreakMinified(src) {
+    var out = '', depth = 0, i = 0, n = src.length, q = null, inLine = false, inBlock = false;
+    function nl() { out = out.replace(/[ \t]+$/, '') + '\n' + new Array(Math.max(0, depth) + 1).join('  '); }
+    while (i < n) {
+      var c = src.charAt(i), nx = src.charAt(i + 1);
+      if (inLine) { out += c; if (c === '\n') inLine = false; i++; continue; }
+      if (inBlock) { out += c; if (c === '*' && nx === '/') { out += nx; i += 2; inBlock = false; continue; } i++; continue; }
+      if (q) {
+        out += c;
+        if (c === '\\') { if (i + 1 < n) out += src.charAt(++i); i++; continue; }
+        if (c === q) q = null;
+        i++; continue;
+      }
+      if (c === '/' && nx === '/') { inLine = true; out += '//'; i += 2; continue; }
+      if (c === '/' && nx === '*') { inBlock = true; out += '/*'; i += 2; continue; }
+      if (c === '"' || c === "'" || c === String.fromCharCode(96)) { q = c; out += c; i++; continue; }
+      if (c === '{') { depth++; out += c; nl(); i++; continue; }
+      if (c === '}') { depth--; if (depth < 0) depth = 0; nl(); out += c; nl(); i++; continue; }
+      if (c === ';') { out += c; nl(); i++; continue; }
+      out += c; i++;
+    }
+    return out;
+  }
+
+  function pvBeautify(html, opts) {
+    opts = opts || {};
+    var src = String(html == null ? '' : html);
+    if (src.length > (opts.max || 500000)) return src;   /* too big to reflow responsively */
+    var out = [], depth = 0, i = 0, n = src.length;
+    function pad() { return new Array(Math.max(0, depth) + 1).join('  '); }
+    function push(line) { out.push(pad() + line); }
+
+    while (i < n) {
+      if (src.charAt(i) === '<') {
+        if (src.substr(i, 4) === '<!--') {
+          var ce = src.indexOf('-->', i); ce = ce < 0 ? n : ce + 3;
+          push(src.slice(i, ce).trim()); i = ce; continue;
+        }
+        var c1 = src.charAt(i + 1);
+        if (c1 === '!' || c1 === '?') {
+          var de = src.indexOf('>', i); de = de < 0 ? n : de + 1;
+          push(src.slice(i, de).trim()); i = de; continue;
+        }
+        if (c1 === '/') {
+          var xe = src.indexOf('>', i); xe = xe < 0 ? n : xe + 1;
+          depth--; if (depth < 0) depth = 0;
+          push(src.slice(i, xe).trim()); i = xe; continue;
+        }
+        /* Opening tag: scan quote-aware so '>' inside an attribute value does not
+           terminate it early. */
+        var j = i + 1, q = null;
+        while (j < n) {
+          var ch = src.charAt(j);
+          if (q) { if (ch === q) q = null; }
+          else if (ch === '"' || ch === "'") q = ch;
+          else if (ch === '>') break;
+          j++;
+        }
+        var tagText = src.slice(i, Math.min(j + 1, n));
+        var name = (tagText.match(/^<\s*([a-zA-Z][\w:-]*)/) || [])[1] || '';
+        var selfClose = /\/\s*>$/.test(tagText) || PV_VOID.test(name);
+        push(tagText.replace(/\s+/g, ' ').trim());
+        i = j + 1;
+
+        if (!selfClose && name && (PV_RAW.test(name) || PV_PRE.test(name))) {
+          var closeRe = new RegExp('<\\/\\s*' + name + '\\s*>', 'i');
+          var m = src.slice(i).match(closeRe);
+          var innerEnd = m ? i + m.index : n;
+          var inner = src.slice(i, innerEnd);
+          depth++;
+          if (inner.trim()) {
+            if (PV_PRE.test(name)) out.push(inner);            /* verbatim */
+            else {
+              var body = inner, bl = body.replace(/\r\n?/g, '\n').split('\n'), longest = 0;
+              for (var k = 0; k < bl.length; k++) if (bl[k].length > longest) longest = bl[k].length;
+              if (bl.length <= 3 && longest > 200) body = pvBreakMinified(body);
+              out.push(pvIndentBlock(body, pad()));
+            }
+          }
+          depth--;
+          i = innerEnd;
+          if (m) { push('</' + name + '>'); i += m[0].length; }
+          continue;
+        }
+        if (!selfClose && name) depth++;
+        continue;
+      }
+      var lt = src.indexOf('<', i); if (lt < 0) lt = n;
+      var text = src.slice(i, lt);
+      if (text.trim()) push(text.replace(/\s+/g, ' ').trim());
+      i = lt;
+    }
+    return out.join('\n');
+  }
+
+  /* Only reflow things that look like markup, and only when they are minified
+     enough to be unreadable. Leaves bare URLs, JSON and tidy source alone. */
+  function pvMaybeBeautify(src) {
+    var t = String(src == null ? '' : src);
+    if (!t.trim()) return t;
+    if (!/<[a-zA-Z!]/.test(t)) return t;
+    var ls = t.split('\n'), longest = 0;
+    for (var i = 0; i < ls.length; i++) if (ls[i].length > longest) longest = ls[i].length;
+    if (longest < 200) return t;
+    try { var r = pvBeautify(t); return r && r.trim() ? r : t; } catch (e) { return t; }
+  }
+
+
   function getDataArray() {
     try { if (Array.isArray(window.data)) return window.data; } catch (e) {}
     try { var d = (0, eval)('typeof data !== "undefined" ? data : null'); if (Array.isArray(d)) return d; } catch (e) {}
@@ -3646,7 +3781,12 @@ updateDlBtns();
         var doc = window.__pvDevTarget.document;
         var html = doc.documentElement.outerHTML;
         if (html.length > 200000) html = html.slice(0, 200000) + '\n... (truncated — use Edit source for full)';
-        tree.innerHTML = highlightHTML(html);
+        /* Beautify first: the live document is minified, so the highlighter had
+           no line structure to express. Then highlightFull rather than
+           highlightHTML, so <script>/<style> bodies go to the JS/CSS
+           highlighters instead of being parsed as markup (which turned code
+           like `if (a<b)` into bogus tags). */
+        tree.innerHTML = highlightFull(pvMaybeBeautify(html));
       } catch (e) { tree.innerHTML = '<div class="pv-empty">Cannot access target — cross-origin restriction.</div>'; }
     }
 
@@ -3656,7 +3796,7 @@ updateDlBtns();
         var html = doc.documentElement.outerHTML;
         var body = container.querySelector('.pv-panel[data-panel="elements"] .pv-panel-body');
         body.innerHTML = '<textarea class="pv-elements-textarea" id="pv-source-textarea" spellcheck="false" wrap="off"></textarea>';
-        body.firstElementChild.value = html;
+        body.firstElementChild.value = pvMaybeBeautify(html);
         container.querySelector('#pv-edit-source-btn').style.display = 'none';
         container.querySelector('#pv-apply-source-btn').style.display = '';
         container.querySelector('#pv-cancel-source-btn').style.display = '';
@@ -3975,7 +4115,10 @@ updateDlBtns();
         if (paintRaf) cancelAnimationFrame(paintRaf);
         paintRaf = requestAnimationFrame(paint);
       }
-      ta.value = src;
+      /* Entries are stored minified, which is what made this pane look glitched.
+         Format on open so the highlighter has real structure. Nothing is marked
+         dirty by this — that still only happens on Apply. */
+      ta.value = pvMaybeBeautify(src);
       paint();
       ta.addEventListener('input', schedulePaint);
       ta.addEventListener('scroll', function () { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; });
@@ -4099,20 +4242,11 @@ updateDlBtns();
     }
 
     /* Lightweight HTML pretty-printer */
+    /* Delegates to the tokenising beautifier. The previous implementation ran a
+       /(<[^>]+>)|([^<]+)/ pass that treated <script> bodies as markup and
+       reflowed them, corrupting code. */
     function formatHtml(html) {
-      var indent = 0, out = '', tab = '  ';
-      html.replace(/(<[^>]+>)|([^<]+)/g, function (full, tag, text) {
-        if (tag) {
-          var isClose = /^<\//.test(tag);
-          var isSelf = /\/\s*>$/.test(tag) || /^<(meta|br|hr|img|link|input|area|base|col|embed|param|source|track|wbr)\b/i.test(tag);
-          var isComment = /^<!\-\-/.test(tag);
-          var isDoctype = /^<!DOCTYPE/i.test(tag);
-          if (isClose) indent = Math.max(0, indent - 1);
-          out += tab.repeat(indent) + tag + '\n';
-          if (!isClose && !isSelf && !isComment && !isDoctype) indent++;
-        } else if (text.trim()) { out += tab.repeat(indent) + text.trim() + '\n'; }
-      });
-      return out;
+      try { return pvBeautify(html) || html; } catch (e) { return html; }
     }
 
     container.querySelector('#pv-pages-search').addEventListener('input', refreshPages);
