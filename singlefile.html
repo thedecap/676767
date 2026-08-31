@@ -838,11 +838,32 @@ window.addEventListener('load', function () {
            injected into child documents that have no access to the parent's
            guard: require a trusted interaction, and stay quiet while our own
            code is closing or navigating the tab. */
-        var human = false, autoAt = 0;
+        var lastInputAt = 0, autoAt = 0;
         function markAuto() { autoAt = Date.now(); }
-        ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'wheel'].forEach(function (t) {
-          try { window.addEventListener(t, function (ev) { if (ev && ev.isTrusted) human = true; }, true); } catch (err) { }
+        function idleWindow() {
+          var ms = 12000;
+          try { var v = parseInt(localStorage.getItem('pvLeaveIdleMs'), 10); if (v > 0) ms = v; } catch (err) { }
+          return Math.min(120000, Math.max(1000, ms));
+        }
+        ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'wheel', 'mousemove', 'scroll'].forEach(function (t) {
+          try {
+            window.addEventListener(t, function (ev) {
+              if (!ev || !ev.isTrusted) return;
+              var now = Date.now();
+              if (now - lastInputAt > 250) lastInputAt = now;
+            }, true);
+          } catch (err) { }
         });
+        function present() {
+          try { var ua = navigator.userActivation; if (ua && ua.isActive === true) return true; } catch (err) { }
+          return (Date.now() - lastInputAt) < idleWindow();
+        }
+        function quiet() {
+          if (Date.now() - autoAt < 1500) return true;
+          try { if (document.hidden) return true; } catch (err) { }
+          try { if (document.hasFocus && !document.hasFocus()) return true; } catch (err) { }
+          return !present();
+        }
         try {
           var _c = window.close;
           if (typeof _c === 'function') window.close = function () { markAuto(); return _c.apply(this, arguments); };
@@ -860,7 +881,7 @@ window.addEventListener('load', function () {
           var on = !!cfg.leave;
           try { var lv = localStorage.getItem(cfg.leaveKey); on = (lv === null) ? true : (lv === '1'); } catch (err) { }
           if (!on) return;
-          if (!human || (Date.now() - autoAt) < 1500) return;
+          if (quiet()) return;
           e.preventDefault();
           e.returnValue = '';
           return '';
@@ -2468,24 +2489,48 @@ updateDlBtns();
 </script>
 <script id="pv-leave-guard">
 (function () {
-  /* A page cannot tell who is unloading it, so the leave prompt is gated on two
-     signals instead: a real human must have interacted, and our own code must
-     not be the one navigating away. */
-  var human = false, autoAt = 0;
+  /* A page cannot see who is unloading it, so presence is used as the proxy.
+     A person closing a tab was just using it; an automated close happens while
+     they are idle, on a hidden tab, or in an unfocused window. */
+  var lastInputAt = 0, autoAt = 0;
 
   function markAuto() { autoAt = Date.now(); }
 
-  /* isTrusted is only true for events the browser itself dispatched, so a
-     synthetic click from a script cannot unlock the prompt. */
-  ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'wheel'].forEach(function (t) {
+  function idleWindow() {
+    var ms = 12000;
     try {
-      window.addEventListener(t, function (e) { if (e && e.isTrusted) human = true; }, true);
+      var v = parseInt(localStorage.getItem('pvLeaveIdleMs'), 10);
+      if (v > 0) ms = v;
+    } catch (e) {}
+    return Math.min(120000, Math.max(1000, ms));
+  }
+
+  /* isTrusted is only true for events the browser itself dispatched, so a
+     scripted click cannot pass for presence. mousemove/scroll are included
+     because they show someone is there even though they grant no activation. */
+  ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'wheel', 'mousemove', 'scroll'].forEach(function (t) {
+    try {
+      window.addEventListener(t, function (e) {
+        if (!e || !e.isTrusted) return;
+        var now = Date.now();
+        if (now - lastInputAt > 250) lastInputAt = now;   /* cheap throttle */
+      }, true);
     } catch (e) {}
   });
 
+  function recentlyActive() {
+    /* Transient activation is the browser's own "the user just acted", and it
+       expires by itself — exactly the semantics wanted here. */
+    try {
+      var ua = navigator.userActivation;
+      if (ua && ua.isActive === true) return true;
+    } catch (e) {}
+    return (Date.now() - lastInputAt) < idleWindow();
+  }
+
   /* Programmatic exits announce themselves. location.href cannot be hooked
-     (the property is unforgeable), which is why the human check above carries
-     most of the weight. */
+     (the property is unforgeable), which is why presence carries most of the
+     weight rather than these patches. */
   try {
     var _close = window.close;
     if (typeof _close === 'function') {
@@ -2509,13 +2554,20 @@ updateDlBtns();
     });
   } catch (e) {}
 
+  function suppressed() {
+    if (Date.now() - autoAt < 1500) return true;              /* our own navigation */
+    try { if (document.hidden) return true; } catch (e) {}     /* background tab */
+    try { if (document.hasFocus && !document.hasFocus()) return true; } catch (e) {}
+    return !recentlyActive();                                  /* nobody is there */
+  }
+
   window.__pvAllowClose = markAuto;
   window.__pvLeaveGuard = {
-    /* True when the prompt should be skipped: nobody has touched the page, or
-       we are mid programmatic navigation. */
-    suppressed: function () { return !human || (Date.now() - autoAt) < 1500; },
-    human: function () { return human; },
-    markAuto: markAuto
+    suppressed: suppressed,
+    recentlyActive: recentlyActive,
+    markAuto: markAuto,
+    /* kept for compatibility with the previous shape */
+    human: recentlyActive
   };
 })();
 </script>
