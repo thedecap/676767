@@ -858,7 +858,7 @@ window.addEventListener('load', function () {
 
         window.addEventListener('beforeunload', function (e) {
           var on = !!cfg.leave;
-          try { on = localStorage.getItem(cfg.leaveKey) === '1'; } catch (err) { }
+          try { var lv = localStorage.getItem(cfg.leaveKey); on = (lv === null) ? true : (lv === '1'); } catch (err) { }
           if (!on) return;
           if (!human || (Date.now() - autoAt) < 1500) return;
           e.preventDefault();
@@ -942,8 +942,9 @@ window.addEventListener('load', function () {
     var id = identity();
     var v = null;
     try { v = document.getElementById('view'); } catch (e) { }
-    var leave = false;
-    try { leave = localStorage.getItem('pvCloakLeave') === '1'; } catch (e) { }
+    /* On by default, matching the vault tab: an absent flag counts as on. */
+    var leave = true;
+    try { var lv = localStorage.getItem('pvCloakLeave'); leave = (lv === null) ? true : (lv === '1'); } catch (e) { }
 
     var c = {
       title: id.title,
@@ -2441,7 +2442,10 @@ updateDlBtns();
 
     /* Leave confirm */
     var leaveCb = cloakLeaveConfirm;
-    var leaveSaved = '0'; try { leaveSaved = localStorage.getItem(LS_LEAVE) || '0'; } catch(e){}
+    /* On by default. Only an absent flag is defaulted — once the user has
+       toggled it off, that choice sticks. */
+    var leaveSaved = null; try { leaveSaved = localStorage.getItem(LS_LEAVE); } catch(e){}
+    if (leaveSaved === null) { leaveSaved = '1'; try { localStorage.setItem(LS_LEAVE, '1'); } catch(e){} }
     applyLeaveConfirm(leaveSaved === '1');
     if (leaveCb) leaveCb.addEventListener('change', function(){ applyLeaveConfirm(leaveCb.checked); });
 
@@ -2517,17 +2521,21 @@ updateDlBtns();
 </script>
 <script id="pv-gg-inject">
 (function () {
-  var lastAlertAt = 0;
+  /* The warning screen is shown at most once per page load. A closer that
+     retries (or a browser that fires beforeunload more than once) would
+     otherwise keep re-raising it. The native prompt is unaffected. */
+  var alertShown = false;
   function maybeShow() {
-    var now = Date.now();
-    if (now - lastAlertAt < 1000) return;
-    lastAlertAt = now;
+    if (alertShown) return;
+    alertShown = true;
     showCloseAlert();
   }
   window.addEventListener('beforeunload', function (e) {
     /* Only warn when the "Leave confirm" setting is ON. Single source of truth:
-       the pvCloakLeave flag written by applyLeaveConfirm(). Off by default. */
-    var leaveOn = false; try { leaveOn = localStorage.getItem('pvCloakLeave') === '1'; } catch (e2) {}
+       the pvCloakLeave flag written by applyLeaveConfirm(). On by default: an
+       absent flag counts as on, while an explicit '0' the user chose is kept. */
+    var leaveOn = true;
+    try { var lv = localStorage.getItem('pvCloakLeave'); leaveOn = (lv === null) ? true : (lv === '1'); } catch (e2) {}
     if (!leaveOn) return;
     /* Only a human closing the tab should be interrupted. Skip the prompt when
        nothing has ever been interacted with, or when our own code is navigating. */
