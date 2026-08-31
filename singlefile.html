@@ -834,10 +834,33 @@ window.addEventListener('load', function () {
        the setting in the vault takes effect in tabs already open. */
     function installLeave() {
       try {
+        /* Same human-only rule as the vault tab, kept local because this shim is
+           injected into child documents that have no access to the parent's
+           guard: require a trusted interaction, and stay quiet while our own
+           code is closing or navigating the tab. */
+        var human = false, autoAt = 0;
+        function markAuto() { autoAt = Date.now(); }
+        ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'wheel'].forEach(function (t) {
+          try { window.addEventListener(t, function (ev) { if (ev && ev.isTrusted) human = true; }, true); } catch (err) { }
+        });
+        try {
+          var _c = window.close;
+          if (typeof _c === 'function') window.close = function () { markAuto(); return _c.apply(this, arguments); };
+        } catch (err) { }
+        try {
+          var _h = window.history;
+          ['back', 'forward', 'go'].forEach(function (m) {
+            var o = _h[m];
+            if (typeof o === 'function') _h[m] = function () { markAuto(); return o.apply(_h, arguments); };
+          });
+        } catch (err) { }
+        window.__pvAllowClose = markAuto;
+
         window.addEventListener('beforeunload', function (e) {
           var on = !!cfg.leave;
           try { on = localStorage.getItem(cfg.leaveKey) === '1'; } catch (err) { }
           if (!on) return;
+          if (!human || (Date.now() - autoAt) < 1500) return;
           e.preventDefault();
           e.returnValue = '';
           return '';
@@ -2439,6 +2462,59 @@ updateDlBtns();
   else init();
 })();
 </script>
+<script id="pv-leave-guard">
+(function () {
+  /* A page cannot tell who is unloading it, so the leave prompt is gated on two
+     signals instead: a real human must have interacted, and our own code must
+     not be the one navigating away. */
+  var human = false, autoAt = 0;
+
+  function markAuto() { autoAt = Date.now(); }
+
+  /* isTrusted is only true for events the browser itself dispatched, so a
+     synthetic click from a script cannot unlock the prompt. */
+  ['pointerdown', 'mousedown', 'keydown', 'touchstart', 'wheel'].forEach(function (t) {
+    try {
+      window.addEventListener(t, function (e) { if (e && e.isTrusted) human = true; }, true);
+    } catch (e) {}
+  });
+
+  /* Programmatic exits announce themselves. location.href cannot be hooked
+     (the property is unforgeable), which is why the human check above carries
+     most of the weight. */
+  try {
+    var _close = window.close;
+    if (typeof _close === 'function') {
+      window.close = function () { markAuto(); return _close.apply(this, arguments); };
+    }
+  } catch (e) {}
+  try {
+    var h = window.history;
+    ['back', 'forward', 'go'].forEach(function (m) {
+      var orig = h[m];
+      if (typeof orig === 'function') h[m] = function () { markAuto(); return orig.apply(h, arguments); };
+    });
+  } catch (e) {}
+  try {
+    var L = window.location;
+    ['assign', 'replace'].forEach(function (m) {
+      var orig = L[m];
+      if (typeof orig === 'function') {
+        try { L[m] = function () { markAuto(); return orig.apply(L, arguments); }; } catch (e) {}
+      }
+    });
+  } catch (e) {}
+
+  window.__pvAllowClose = markAuto;
+  window.__pvLeaveGuard = {
+    /* True when the prompt should be skipped: nobody has touched the page, or
+       we are mid programmatic navigation. */
+    suppressed: function () { return !human || (Date.now() - autoAt) < 1500; },
+    human: function () { return human; },
+    markAuto: markAuto
+  };
+})();
+</script>
 <script id="pv-gg-inject">
 (function () {
   var lastAlertAt = 0;
@@ -2453,6 +2529,9 @@ updateDlBtns();
        the pvCloakLeave flag written by applyLeaveConfirm(). Off by default. */
     var leaveOn = false; try { leaveOn = localStorage.getItem('pvCloakLeave') === '1'; } catch (e2) {}
     if (!leaveOn) return;
+    /* Only a human closing the tab should be interrupted. Skip the prompt when
+       nothing has ever been interacted with, or when our own code is navigating. */
+    try { if (window.__pvLeaveGuard && window.__pvLeaveGuard.suppressed()) return; } catch (e3) {}
     /* Try to paint the modal BEFORE the native prompt opens. Some browsers (Chrome
        in particular) flush layout between our handler returning and the prompt
        opening, which can let the modal render first. We force a reflow so layout
