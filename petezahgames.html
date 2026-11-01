@@ -373,6 +373,7 @@ function showControls(on) { vcontrols.hidden = !on; vshow.hidden = on; }
 $('vhide').addEventListener('click', () => showControls(false));
 vshow.addEventListener('click', () => showControls(true));
 $('vback').addEventListener('click', () => {
+  if (memRoute) { setRoute(''); return; }
   // replace the game entry with the list so the browser's own Back button does not reopen the game
   try { history.replaceState(null, '', location.href.split('#')[0]); route(); } catch { location.hash = ''; }
 });
@@ -498,12 +499,21 @@ function closeViewer() {
   document.title = 'Games';
   startBg();
 }
+/* Chrome refuses hash navigation inside a blob page made from a local file, which is
+   how the Vault shows this when its own file is opened directly. The open game is kept
+   here instead in that one case. */
+const memRoute = /^blob:null\//.test(location.href);
+let routeHash = '';
+function setRoute(hash) {
+  if (memRoute) { routeHash = hash ? '#' + hash : ''; route(); }
+  else location.hash = hash;
+}
 function playGame(g) {
   state.openedFromList = true;
-  location.hash = 'game?url=' + encodeURIComponent(g.url) + '&title=' + encodeURIComponent(g.label);
+  setRoute('game?url=' + encodeURIComponent(g.url) + '&title=' + encodeURIComponent(g.label));
 }
 function route() {
-  const m = location.hash.match(/^#game\?(.*)$/);
+  const m = (memRoute ? routeHash : location.hash).match(/^#game\?(.*)$/);
   if (m) { const p = new URLSearchParams(m[1]); openViewer(p.get('url') || '', p.get('title') || ''); }
   else closeViewer();
 }
