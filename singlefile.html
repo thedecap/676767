@@ -2954,7 +2954,7 @@ updateDlBtns();
 (function () {
   'use strict';
   var CDN = 'https://cdn.jsdelivr.net/gh/';
-  var CACHE_KEY = 'pvGameIndex', CACHE_VER = 1, STALE_MS = 12 * 3600 * 1000;
+  var CACHE_KEY = 'pvGameIndex', CACHE_VER = 2, STALE_MS = 12 * 3600 * 1000;
   var SHOWN = 7, SHOWN_ALL = 60, PAGES_SHOWN = 5;
 
   /* ---- each site's own fixes, so a game runs here exactly as it does there ---- */
@@ -3020,8 +3020,11 @@ updateDlBtns();
       list: CDN + 'freebuisness/assets@main/zones.json',
       read: function (json) {
         return json.filter(function (z) { return z && z.id >= 0 && /^\{HTML_URL\}/.test(z.url || ''); })
-          .map(function (z) { return [z.name, String(z.url).replace('{HTML_URL}', '').replace(/^\//, '')]; });
+          .map(function (z) {
+            return [z.name, String(z.url).replace('{HTML_URL}', '').replace(/^\//, ''), String(z.cover || '').replace('{COVER_URL}', '').replace(/^\//, '')];
+          });
       },
+      img: function (c) { return CDN + 'freebuisness/covers@main/' + c; },
       url: function (k) { return CDN + 'freebuisness/html@main/' + k; },
       fix: function (html, url) { return zoneBase(html, url); } },
     { id: 'ugs', label: 'UGS', short: 'UGS', page: 'UGS Search', hue: 214, text: true,
@@ -3037,15 +3040,18 @@ updateDlBtns();
       fix: function (html) { return html; } },
     { id: 'senior', label: 'Senior Games', short: 'Senior', page: 'Senior Games', hue: 166,
       list: SENIOR + 'data/games.json',
-      read: function (json) { return json.map(function (g) { return [g.name, g.directory]; }); },
+      read: function (json) { return json.map(function (g) { return [g.name, g.directory, g.image || '']; }); },
+      img: function (c, k) { return SENIOR + 'semag/' + k + '/' + c; },
       url: function (k) { return SENIOR + 'semag/' + k + '/index.html'; },
       fix: function (html, url, k) { return seniorFix(html, k); } },
     { id: 'backup', label: 'Backup Games', short: 'Backup', page: 'Backup Games', hue: 26,
       list: BACKUP + 'games.json',
-      read: function (json) { return json.map(function (g) { return [g.title, g.link]; }); },
+      read: function (json) { return json.map(function (g) { return [g.title, g.link, g.image || '']; }); },
+      img: function (c) { return /^http/.test(c) ? c : BACKUP + c; },
       url: function (k) { return /^http/.test(k) ? k : BACKUP + k; },
       fix: function (html, url, k) { return backupFix(html, k); } }
   ];
+  var IMG_ORDER = ['senior', 'backup', 'ported'];
   var BY_ID = {};
   SOURCES.forEach(function (s, i) { s.rank = i; BY_ID[s.id] = s; });
 
@@ -3068,10 +3074,19 @@ updateDlBtns();
       /* Grouped without spaces, so "Retro Bowl" and "Retrobowl" are one game. */
       var g = groups[c];
       if (!g) { g = groups[c] = { name: name, q: q, c: c, hits: [] }; list.push(g); }
-      if (!g.hits.some(function (h) { return h.s === r[2]; })) g.hits.push({ s: r[2], k: r[1] });
+      if (!g.hits.some(function (h) { return h.s === r[2]; })) g.hits.push({ s: r[2], k: r[1], c: r[3] || '' });
     });
     list.forEach(function (g) {
       g.hits.sort(function (a, b) { return BY_ID[a.s].rank - BY_ID[b.s].rank; });
+      /* Every library's picture, lightest first: Senior and Backup covers are a few KB and
+         gn-math's can be over a megabyte. One that is broken or icon-sized gives way to the next. */
+      g.imgs = [];
+      IMG_ORDER.forEach(function (id) {
+        g.hits.forEach(function (h) {
+          var s = BY_ID[h.s];
+          if (h.s === id && h.c && s.img) g.imgs.push(s.img(h.c, h.k));
+        });
+      });
     });
     return list;
   }
@@ -3085,7 +3100,7 @@ updateDlBtns();
   function fetchSource(s) {
     return fetch(s.list, { cache: 'no-cache' })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return s.text ? r.text() : r.json(); })
-      .then(function (body) { return s.read(body).map(function (x) { return [x[0], x[1], s.id]; }); })
+      .then(function (body) { return s.read(body).map(function (x) { return [x[0], x[1], s.id, x[2] || '']; }); })
       .catch(function () { failed.push(s.label); return null; });
   }
   function refresh() {
@@ -3165,9 +3180,12 @@ updateDlBtns();
     '#pv-gs .gs-body{overflow-y:auto;padding:6px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(167,139,250,.3) transparent}',
     '#pv-gs .gs-sec{display:flex;align-items:center;gap:8px;padding:10px 10px 6px;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#8e86ab}',
     '#pv-gs .gs-count{margin-left:auto;letter-spacing:0;text-transform:none;font-weight:500;color:#6f6890}',
-    '#pv-gs .gs-row{display:flex;align-items:center;gap:12px;padding:7px 10px;border-radius:11px;cursor:pointer;min-height:46px;box-sizing:border-box}',
+    '#pv-gs .gs-row{display:flex;align-items:center;gap:12px;padding:6px 10px;border-radius:11px;cursor:pointer;min-height:52px;box-sizing:border-box}',
     '#pv-gs .gs-row.on{background:rgba(139,92,246,.16);box-shadow:inset 0 0 0 1px rgba(167,139,250,.22)}',
-    '#pv-gs .gs-tile{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:14px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}',
+    '#pv-gs .gs-tile{position:relative;overflow:hidden;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:15px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}',
+    '#pv-gs .gs-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .18s ease;background:#15121f}',
+    '#pv-gs .gs-img.ok{opacity:1}',
+    '#pv-gs .gs-tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);pointer-events:none}',
     '#pv-gs .gs-tile.page{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:16px}',
     '#pv-gs .gs-text{flex:1 1 auto;min-width:110px}',
     '#pv-gs .gs-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f2effa;font-weight:500}',
@@ -3256,6 +3274,23 @@ updateDlBtns();
       var first = BY_ID[r.g.hits[0].s];
       tile.style.background = tileColor(first.hue);
       tile.textContent = (r.name.match(/[A-Za-z0-9]/) || ['#'])[0].toUpperCase();
+      if (r.g.imgs && r.g.imgs.length) {
+        var pic = document.createElement('img'), tried = 0;
+        pic.className = 'gs-img';
+        pic.alt = '';
+        pic.loading = 'lazy';
+        pic.decoding = 'async';
+        pic.referrerPolicy = 'no-referrer';
+        var next = function () {
+          if (tried >= r.g.imgs.length) { if (pic.parentNode) pic.parentNode.removeChild(pic); return; }
+          pic.src = r.g.imgs[tried++];
+        };
+        /* An icon-sized picture would be blurry here, so the next library's is tried. */
+        pic.onload = function () { if (pic.naturalWidth < 48 || pic.naturalHeight < 48) next(); else pic.classList.add('ok'); };
+        pic.onerror = next;
+        next();
+        tile.appendChild(pic);
+      }
       sub.textContent = r.g.hits.length > 1 ? 'In ' + r.g.hits.length + ' libraries' : first.label;
     } else {
       tile.className += ' page';
