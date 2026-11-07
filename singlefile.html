@@ -987,11 +987,19 @@ window.addEventListener('load', function () {
         try { if (localStorage.getItem('pvCoverExternal') === '0') coverIt = false; } catch (e) { }
       }
 
+      /* "noopener" makes open() hand back null, which left nothing to cover or give the
+         prompt to, so the tab stayed blank. Tabs opened here keep their opener instead. */
+      var keep = String(features == null ? '' : features).split(',').filter(function (f) {
+        return !/^\s*no(opener|referrer)\b/i.test(f);
+      }).join(',');
+
       try {
         if (coverIt) {
-          child = nativeOpen.call(window, 'about:blank', name || '_blank', features || '');
+          child = nativeOpen.call(window, 'about:blank', name || '_blank', keep);
           if (child) { if (!cover(child, s)) { try { child.location.replace(s); } catch (e) { } } }
           else child = nativeOpen.apply(window, arguments);   /* blocked: let the caller see null */
+        } else if (!external) {
+          child = nativeOpen.call(window, url, name, keep);
         } else {
           child = nativeOpen.apply(window, arguments);
         }
@@ -1008,6 +1016,31 @@ window.addEventListener('load', function () {
     }
     pvOpen.__pv = 1;
     try { window.open = pvOpen; } catch (e) { }
+
+    /* A link that opens a new tab never calls window.open, so the tab it made had no
+       prompt and no cloak, and neither did anything opened from it. Such links go
+       through pvOpen now, like a page script opening the same address. */
+    function onLink(e) {
+      try {
+        if (e.defaultPrevented) return;
+        var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a || a.hasAttribute('download')) return;
+        var newTab = e.type === 'auxclick' ? e.button === 1 : (e.ctrlKey || e.metaKey || e.shiftKey);
+        if (!newTab && String(a.getAttribute('target') || '').toLowerCase() !== '_blank') return;
+        var href = String(a.href || '');
+        if (!/^(https?:|about:blank|blob:)/i.test(href)) return;
+        e.preventDefault();
+        pvOpen(href, '_blank');
+      } catch (err) { }
+    }
+    /* document.open() erases listeners, so this is repeated wherever keepLeave is. */
+    function keepLinks() {
+      try {
+        window.addEventListener('click', onLink);
+        window.addEventListener('auxclick', onLink);
+      } catch (e) { }
+    }
+    keepLinks();
 
     /* ---- everything below only matters when this document IS the tab ----
        In a frame the title and icon never reach the tab strip, and a
@@ -1054,7 +1087,7 @@ window.addEventListener('load', function () {
             if (typeof orig !== 'function' || orig.__pv) return;
             var wrapped = function () {
               var r = orig.apply(document, arguments);
-              paint(document); observe(); keepLeave();
+              paint(document); observe(); keepLeave(); keepLinks();
               return r;
             };
             wrapped.__pv = 1;
@@ -1100,9 +1133,8 @@ window.addEventListener('load', function () {
         }
         function quiet() {
           if (Date.now() - autoAt < 1500) return true;
-          try { if (document.hidden) return true; } catch (err) { }
-          /* hasFocus() dropped on purpose: clicking the tab's X moves focus off
-             the document and was suppressing the prompt on mouse-driven closes. */
+          /* Neither hasFocus() nor document.hidden: clicking the X moves focus off the
+             document, and closing the tab from another one hides it first. */
           return !present();
         }
         try {
@@ -1386,7 +1418,7 @@ window.addEventListener('load', function () {
       observe();
       hookWrite();
       installLeave();
-      setInterval(function () { paint(document); keepLeave(); }, cfg.tick * 2);
+      setInterval(function () { paint(document); keepLeave(); keepLinks(); }, cfg.tick * 2);
       document.addEventListener('visibilitychange', function () { paint(document); });
     }
   }
@@ -2252,7 +2284,6 @@ function loadCode(p,b){
   if(/^https?:\/\/[^\s<>"']+$/i.test(_bare)){
     _loadCovered(_bare);
     updateDlBtns();
-    try { if (window.__pvCheckOpenInNewTab) window.__pvCheckOpenInNewTab(p); } catch (e) {}
     return;
   }
   // If the decoded HTML is essentially a passthrough iframe/embed to an external URL,
@@ -2267,7 +2298,6 @@ function loadCode(p,b){
     if ((iframeCount+embedCount)===1 && scriptCount===0) {
       _loadCovered(srcMatch[1]);
       updateDlBtns();
-      try { if (window.__pvCheckOpenInNewTab) window.__pvCheckOpenInNewTab(p); } catch (e) {}
       return;
     }
   }
@@ -2295,7 +2325,6 @@ function loadCode(p,b){
     view.srcdoc=out;
   }
   updateDlBtns();
-  try { if (window.__pvCheckOpenInNewTab) window.__pvCheckOpenInNewTab(p); } catch (e) {}
 }
 function goHome(){if(typeof homeId!=='undefined'&&homeId!==null){const b=allBtns.find(x=>parseInt(x.dataset.id)===homeId);if(b){b.click();return;}}if(allBtns[0])allBtns[0].click();if(window.innerWidth<=1279){const sb=document.getElementById('sidebar');if(sb&&sb.classList.contains('sb-open')&&typeof toggleSidebar==='function')toggleSidebar();}}
 
@@ -3486,9 +3515,9 @@ updateDlBtns();
 </script>
 <script id="pv-leave-guard">
 (function () {
-  /* A page cannot see who is unloading it, so presence is used as the proxy.
-     A person closing a tab was just using it; an automated close happens while
-     they are idle, on a hidden tab, or in an unfocused window. */
+  /* A page cannot see who is unloading it. The prompt is held back only while our
+     own code is leaving, or when nobody has used the tab at all, in which case the
+     browser would not show it anyway. Closing it from another tab still asks. */
   var lastInputAt = 0, autoAt = 0, everInteracted = false;
 
   function markAuto() { autoAt = Date.now(); }
@@ -3521,7 +3550,9 @@ updateDlBtns();
        expires by itself — exactly the semantics wanted here. */
     try {
       var ua = navigator.userActivation;
-      if (ua && ua.isActive === true) return true;
+      /* hasBeenActive also counts play inside the page's frame, which this
+         document never sees: a game played there used to look like an idle tab. */
+      if (ua && (ua.isActive === true || ua.hasBeenActive === true)) return true;
     } catch (e) {}
     /* Once the user has interacted even once, the browser keeps "sticky
        activation" for the whole page lifetime, so the native leave prompt
@@ -3560,11 +3591,9 @@ updateDlBtns();
 
   function suppressed() {
     if (Date.now() - autoAt < 1500) return true;              /* our own navigation */
-    try { if (document.hidden) return true; } catch (e) {}     /* background tab */
-    /* hasFocus() is intentionally NOT a suppressor here: clicking the tab's
-       X button moves focus to the browser chrome, so keying off it dropped
-       the prompt on mouse-driven closes. document.hidden already covers
-       genuine background / automated closes. */
+    /* Neither hasFocus() nor document.hidden holds it back: clicking a tab's X
+       moves focus to the browser, and closing it from another tab hides it first,
+       so both let closes slip through unprompted. */
     return !recentlyActive();                                  /* never interacted */
   }
 
@@ -3675,109 +3704,6 @@ updateDlBtns();
     if (okBtn) okBtn.addEventListener('click', dismiss);
     ov.addEventListener('click', function (e) { if (e.target === ov) dismiss(); });
     document.addEventListener('keydown', onKey);
-  }
-})();
-</script>
-<script id="pv-otp-prompt">
-(function () {
-  var TRIGGER_TITLES = ['UGS Search','Senior Games','Ported Games','Infinity Games','Backup Games','Gaming Center','Extreme Games'];
-  function decodeB64(s) {
-    /* TextDecoder path; falls back to the old escape() form on very old engines. */
-    if (!s) return '';
-    try {
-      var bin = atob(s), n = bin.length, b = new Uint8Array(n);
-      for (var i = 0; i < n; i++) b[i] = bin.charCodeAt(i);
-      return new TextDecoder('utf-8').decode(b);
-    } catch (e) {
-      try { return decodeURIComponent(escape(atob(s))); }
-      catch (e2) { try { return atob(s); } catch (e3) { return ''; } }
-    }
-  }
-  window.__pvCheckOpenInNewTab = function (page) {
-    if (!page || !page.title) return;
-    if (TRIGGER_TITLES.indexOf(page.title) === -1) return;
-    showPrompt(page);
-  };
-  function openInNewTab(page) {
-    if (!page || !page.code) { alert('No page to open.'); return; }
-    /* window.open has to happen in the click's own tick or the pop-up blocker
-       eats it — decode after. */
-    var w = window.open('about:blank', '_blank');
-    if (!w) { alert('Popup blocked. Please allow popups for this site.'); return; }
-    /* Never let this throw: the caller dismisses the modal, and an exception
-       here would leave that full-screen overlay up and the vault unclickable. */
-    try {
-      window.__pvCloak.openCloaked(decodeB64(page.code), w);
-    } catch (e) {
-      try { w.document.open(); w.document.write(decodeB64(page.code)); w.document.close(); } catch (e2) {}
-    }
-  }
-  function showPrompt(page) {
-    if (document.getElementById('pv-otp-modal')) return;
-    /* On mobile breakpoint, close the sidebar so the modal isn't sitting behind it */
-    try {
-      if (window.innerWidth <= 1279) {
-        var sb = document.getElementById('sidebar');
-        if (sb && sb.classList.contains('sb-open') && typeof window.toggleSidebar === 'function') {
-          window.toggleSidebar();
-        }
-      }
-    } catch (e) {}
-    var ov = document.createElement('div');
-    ov.id = 'pv-otp-modal';
-    ov.innerHTML =
-      '<style>' +
-      '#pv-otp-modal{position:fixed;inset:0;background:rgba(5,5,7,.82);backdrop-filter:blur(8px) saturate(120%);-webkit-backdrop-filter:blur(8px) saturate(120%);z-index:2147483646;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif;animation:pvOtpIn .2s ease}' +
-      '@keyframes pvOtpIn{from{opacity:0}to{opacity:1}}' +
-      '@keyframes pvOtpCard{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}' +
-      '#pv-otp-card{background:linear-gradient(180deg,#111114 0%,#0c0c0e 100%);width:420px;max-width:92vw;border-radius:14px;padding:32px;box-sizing:border-box;border:1px solid #1f1f24;color:#ededee;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 24px 64px -8px rgba(0,0,0,.65),0 4px 12px rgba(0,0,0,.3);animation:pvOtpCard .28s cubic-bezier(.2,.9,.3,1)}' +
-      '.pv-otp-icon{width:38px;height:38px;border-radius:10px;background:#0d1f2a;border:1px solid #1d3a5b;display:flex;align-items:center;justify-content:center;color:#79b8ff;margin:0 0 22px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 2px 8px rgba(0,0,0,.3)}' +
-      '.pv-otp-title{font-size:17px;font-weight:600;color:#fafafa;margin:0 0 6px;letter-spacing:-.01em;line-height:1.3}' +
-      '.pv-otp-sub{font-size:13.5px;color:#9094a0;margin:0 0 28px;line-height:1.65}' +
-      '.pv-otp-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px}' +
-      '.pv-otp-btn{font-family:inherit;font-size:13px;font-weight:500;padding:0 18px;border-radius:7px;cursor:pointer;border:1px solid transparent;transition:.12s ease;height:36px;display:inline-flex;align-items:center;gap:6px}' +
-      '.pv-otp-cancel{background:transparent;color:#a1a1a6}' +
-      '.pv-otp-cancel:hover{color:#fafafa;background:#161618}' +
-      '.pv-otp-submit{background:linear-gradient(180deg,#fafafa 0%,#e4e4e7 100%);color:#09090b;border-color:#fafafa;box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 1px 2px rgba(0,0,0,.4)}' +
-      '.pv-otp-submit:hover{background:linear-gradient(180deg,#fff 0%,#f4f4f5 100%);transform:translateY(-1px);box-shadow:0 2px 0 rgba(255,255,255,.5) inset,0 4px 8px rgba(0,0,0,.4)}' +
-      '.pv-otp-submit:active{transform:translateY(0)}' +
-      '</style>' +
-      '<div id="pv-otp-card">' +
-        '<div class="pv-otp-icon">' +
-          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-            '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>' +
-            '<polyline points="15 3 21 3 21 9"></polyline>' +
-            '<line x1="10" y1="14" x2="21" y2="3"></line>' +
-          '</svg>' +
-        '</div>' +
-        '<h2 class="pv-otp-title">Open in a new tab?</h2>' +
-        '<p class="pv-otp-sub">Games will have a much better chance of working in a new tab than on here.</p>' +
-        '<div class="pv-otp-actions">' +
-          '<button class="pv-otp-btn pv-otp-cancel" id="pv-otp-cancel">Stay here</button>' +
-          '<button class="pv-otp-btn pv-otp-submit" id="pv-otp-open">Open in new tab' +
-            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
-              '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>' +
-            '</svg>' +
-          '</button>' +
-        '</div>' +
-      '</div>';
-    document.body.appendChild(ov);
-    function dismiss() {
-      ov.style.transition = 'opacity .15s ease';
-      ov.style.opacity = '0';
-      setTimeout(function () { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 150);
-    }
-    document.getElementById('pv-otp-cancel').addEventListener('click', dismiss);
-    document.getElementById('pv-otp-open').addEventListener('click', function () {
-      /* Dismiss first. If opening throws, the overlay is already gone rather
-         than sitting at inset:0 / z-index:2147483646 eating every click. */
-      dismiss();
-      try { openInNewTab(page); } catch (e) {}
-    });
-    ov.addEventListener('click', function (e) { if (e.target === ov) dismiss(); });
-    document.addEventListener('keydown', function onKey(e) {
-      if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); dismiss(); }
-    });
   }
 })();
 </script>
