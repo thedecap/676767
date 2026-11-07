@@ -4184,6 +4184,28 @@ updateDlBtns();
     /* kept for compatibility with the previous shape */
     human: recentlyActive
   };
+
+  /* Chrome shows the address as a tab's title when a navigation stops at the leave prompt,
+     and keeps showing it after the person stays. A launcher opens the Vault in about:blank,
+     so that is all the tab then says. The document's title never changed, so writing the
+     same text does nothing: it has to change and change back, as the shim does in the tabs
+     the Vault opens. Timers stand still while the prompt is open, so these run once it is
+     answered. */
+  function recloak() {
+    try {
+      var d = Object.getOwnPropertyDescriptor(Document.prototype, 'title');
+      var set = d.set.__pvNative || d.set, t = document.title;
+      if (t) { set.call(document, t + '\u200b'); set.call(document, t); }
+      var icon = document.querySelector('link[rel~="icon"]');
+      if (icon && icon.parentNode) icon.parentNode.replaceChild(icon.cloneNode(), icon);
+    } catch (e) {}
+  }
+  window.addEventListener('beforeunload', function () {
+    var waits = [0, 120, 400, 1200];
+    (function next() {
+      if (waits.length) setTimeout(function () { recloak(); next(); }, waits.shift());
+    })();
+  });
 })();
 </script>
 <script id="pv-gg-inject">
